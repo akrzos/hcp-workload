@@ -10,6 +10,7 @@ export BURST=20
 
 # Objects Config
 export SERVER_DEPLOYMENTS=2
+export CLIENT_DEPLOYMENTS=2
 export CONFIGMAPS=2
 export CM_KEY_COUNT=2
 export CM_VALUE_SIZE=512

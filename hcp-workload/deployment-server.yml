@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
       {{$data := .}}
-      {{range $ci, $ce := until .containerCount}}
-      - name: server-{{$ci}}
+      {{range until .containerCount}}
+      - name: server-{{.}}
         image: quay.io/redhat-performance/test-gohttp-probe:v0.0.3
         resources:
           requests:
@@ -39,11 +39,11 @@ spec:
           mountPath: /etc/podlabels
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: {{add $data.envStartPort $ce}}
+        - containerPort: {{add $data.envStartPort .}}
           protocol: TCP
         env:
         - name: PORT
-          value: "{{add $data.envStartPort $ce}}"
+          value: "{{add $data.envStartPort .}}"
         {{range $data.containerEnvArgs}}
         - name: "{{.name}}"
           value: "{{.value}}"
@@ -57,21 +57,21 @@ spec:
           {{range $data.startupProbeArgs}}
           {{.}}
           {{end}}
-            port: {{add $data.envStartPort $ce}}
+            port: {{add $data.envStartPort .}}
         {{end}}
         {{if $data.enableLivenessProbe}}
         livenessProbe:
           {{range $data.livenessProbeArgs}}
           {{.}}
           {{end}}
-            port: {{add $data.envStartPort $ce}}
+            port: {{add $data.envStartPort .}}
         {{end}}
         {{if $data.enableReadinessProbe}}
         readinessProbe:
           {{range $data.readinessProbeArgs}}
           {{.}}
           {{end}}
-            port: {{add $data.envStartPort $ce}}
+            port: {{add $data.envStartPort .}}
         {{end}}
       {{end}}
       volumes:

@@ -58,6 +58,7 @@ jobs:
       inputVars:
         servicePerDeploy: {{.SERVICES}}
         envStartPort: 8000
+        serviceStartPort: 80
         ports: {{.CONTAINER_COUNT}}
 
     - objectTemplate: hcp-workload/deployment-server.yml
@@ -115,7 +116,15 @@ jobs:
         - "  path: /readyz"
         - "  scheme: HTTP"
 
-    # - objectTemplate: hcp-workload/deployment-client.yml
-    #   replicas: 1
-    #   inputVars:
-    #     podReplicas: 1
+    - objectTemplate: hcp-workload/deployment-client.yml
+      replicas: {{.CLIENT_DEPLOYMENTS}}
+      inputVars:
+        podReplicas: {{.POD_COUNT}}
+        containerCount: {{.CONTAINER_COUNT}}
+        labelCount: {{.LABEL_COUNT}}
+        configmaps: {{.CONFIGMAPS}}
+        secrets: {{.SECRETS}}
+        servicePerDeploy: {{.SERVICES}}
+        serviceStartPort: 80
+        envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
+        envAddVarSize: {{.ENV_ADD_VAR_SIZE}}

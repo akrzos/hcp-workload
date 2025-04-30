@@ -2,20 +2,25 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: client-{{.Replica}}
+  name: client-{{.Iteration}}-{{.Replica}}
 spec:
   replicas: {{.podReplicas}}
   selector:
     matchLabels:
-      name: client-{{.Replica}}
+      name: client-{{.Iteration}}-{{.Replica}}
   template:
     metadata:
       labels:
-        name: client-{{.Replica}}
+        name: client-{{.Iteration}}-{{.Replica}}
         app: client
+        {{range until .labelCount}}
+        label{{.}}: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        {{end}}
     spec:
       containers:
-      - name: client-app
+      {{$data := .}}
+      {{range until .containerCount}}
+      - name: client-{{.}}
         image: quay.io/cloud-bulldozer/curl:latest
         command: ["sleep", "inf"]
         resources:
@@ -23,10 +28,14 @@ spec:
             memory: "10Mi"
             cpu: "10m"
         volumeMounts:
-        - name: secret-1
-          mountPath: /secret1
-        - name: configmap-1
-          mountPath: /configmap1
+        {{range until $data.secrets}}
+        - name: secret-{{.}}
+          mountPath: /secret{{.}}
+        {{end}}
+        {{range until $data.configmaps}}
+        - name: cm-{{.}}
+          mountPath: /configmap{{.}}
+        {{end}}
         - name: podinfo
           mountPath: /etc/podlabels
         imagePullPolicy: IfNotPresent
@@ -40,17 +49,31 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 3
         env:
-        - name: ENVVAR1
-          value: "{{randAlphaNum 250}}"
+        {{$r_index := add $data.Replica -1}}
         - name: SERVICE_ENDPOINT
-          value: "http://hcp-rate-1/256.html"
+          value: "http://server-{{$data.Iteration}}-{{mod $r_index $data.servicePerDeploy | add1}}:{{add $data.serviceStartPort .}}/home"
+        {{range until $data.envAddVarCount}}
+        - name: ENVVAR_{{.}}
+          value: "{{randAlphaNum $data.envAddVarSize}}"
+        {{end}}
+      {{end}}
       volumes:
-      - name: secret-1
+      {{range until .secrets}}
+      {{$r_index := add $data.Replica -1}}
+      {{$d_s_count := mul $r_index $data.secrets}}
+      {{$s_index := add $d_s_count . 1}}
+      - name: secret-{{.}}
         secret:
-          secretName: {{.JobName}}-1
-      - name: configmap-1
+          secretName: server-{{$data.Iteration}}-{{$s_index}}
+      {{end}}
+      {{range until .configmaps}}
+      {{$r_index := add $data.Replica -1}}
+      {{$d_cm_count := mul $r_index $data.configmaps}}
+      {{$cm_index := add $d_cm_count . 1}}
+      - name: cm-{{.}}
         configMap:
-          name: {{.JobName}}-1
+          name: server-{{$data.Iteration}}-{{$cm_index}}
+      {{end}}
       - name: podinfo
         downwardAPI:
           items:

@@ -12,7 +12,7 @@ spec:
   {{range until .ports}}
   - protocol: TCP
     name: port-{{add $data.envStartPort .}}
-    port: {{add 80 .}}
+    port: {{add $data.serviceStartPort .}}
     targetPort: {{add $data.envStartPort .}}
   {{end}}
   type: ClusterIP
