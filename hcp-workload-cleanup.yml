@@ -1,0 +1,14 @@
+---
+global:
+  gc: true
+
+jobs:
+- name: cleanup-hcp-workload
+  jobType: delete
+  waitForDeletion: true
+  qps: 10
+  burst: 20
+  objects:
+  - kind: Namespace
+    labelSelector: {hcp-workload: true}
+    apiVersion: v1

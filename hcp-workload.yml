@@ -1,0 +1,121 @@
+---
+global:
+  gc: true
+  measurements:
+  - name: podLatency
+    thresholds:
+    - conditionType: Ready
+      metric: P99
+      threshold: 2m0s
+metricsEndpoints:
+- metrics: [hcp-workload/metrics-aggregated.yml]
+  alerts: [hcp-workload/alerts.yml]
+  indexer:
+    type: local
+    metricsDirectory: collected-metrics
+
+jobs:
+- name: workload0
+  jobType: create
+  jobIterations: {{.ITERATIONS}}
+  namespace: hcp-workload
+  namespacedIterations: true
+  podWait: false
+  waitWhenFinished: true
+  jobPause: {{.JOB_PAUSE_TIME}}
+  qps: {{.QPS}}
+  burst: {{.BURST}}
+  preLoadImages: false
+  preLoadPeriod: 1m
+  namespaceLabels:
+    security.openshift.io/scc.podSecurityLabelSync: false
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/warn: privileged
+    hcp-workload: true
+  churn: false
+  churnCycles: 100
+  churnPercent: 10
+  churnDuration: 5m
+  churnDelay: 0s
+  churnDeletionStrategy: default
+  objects:
+
+    - objectTemplate: hcp-workload/secret.yml
+      replicas: {{mul .SERVER_DEPLOYMENTS .SECRETS}}
+      inputVars:
+        secretKeyCount: {{.SECRET_KEY_COUNT}}
+        secretValueSize: {{.SECRET_VALUE_SIZE}}
+
+    - objectTemplate: hcp-workload/configmap.yml
+      replicas: {{mul .SERVER_DEPLOYMENTS .CONFIGMAPS}}
+      inputVars:
+        cmKeyCount: {{.CM_KEY_COUNT}}
+        cmValueSize: {{.CM_VALUE_SIZE}}
+
+    - objectTemplate: hcp-workload/service.yml
+      replicas: {{mul .SERVER_DEPLOYMENTS .SERVICES}}
+      inputVars:
+        servicePerDeploy: {{.SERVICES}}
+        envStartPort: 8000
+        ports: {{.CONTAINER_COUNT}}
+
+    - objectTemplate: hcp-workload/deployment-server.yml
+      replicas: {{.SERVER_DEPLOYMENTS}}
+      inputVars:
+        podReplicas: {{.POD_COUNT}}
+        containerCount: {{.CONTAINER_COUNT}}
+        labelCount: {{.LABEL_COUNT}}
+        configmaps: {{.CONFIGMAPS}}
+        secrets: {{.SECRETS}}
+        envStartPort: 8000
+        containerEnvArgs:
+        - name: LISTEN_DELAY_SECONDS
+          value: 5
+        - name: LIVENESS_DELAY_SECONDS
+          value: 10
+        - name: READINESS_DELAY_SECONDS
+          value: 15
+        - name: RESPONSE_DELAY_MILLISECONDS
+          value: 10
+        - name: LIVENESS_SUCCESS_MAX
+          value: 30
+        - name: READINESS_SUCCESS_MAX
+          value: 0
+        envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
+        envAddVarSize: {{.ENV_ADD_VAR_SIZE}}
+        enableStartupProbe: true
+        startupProbeArgs:
+        - "initialDelaySeconds: 0"
+        - "periodSeconds: 10"
+        - "timeoutSeconds: 1"
+        - "failureThreshold: 12"
+        - "successThreshold: 1"
+        - "httpGet:"
+        - "  path: /livez"
+        - "  scheme: HTTP"
+        enableLivenessProbe: true
+        livenessProbeArgs:
+        - "initialDelaySeconds: 0"
+        - "periodSeconds: 10"
+        - "timeoutSeconds: 1"
+        - "failureThreshold: 3"
+        - "successThreshold: 1"
+        - "httpGet:"
+        - "  path: /livez"
+        - "  scheme: HTTP"
+        enableReadinessProbe: true
+        readinessProbeArgs:
+        - "initialDelaySeconds: 0"
+        - "periodSeconds: 10"
+        - "timeoutSeconds: 1"
+        - "failureThreshold: 3"
+        - "successThreshold: 1"
+        - "httpGet:"
+        - "  path: /readyz"
+        - "  scheme: HTTP"
+
+    # - objectTemplate: hcp-workload/deployment-client.yml
+    #   replicas: 1
+    #   inputVars:
+    #     podReplicas: 1

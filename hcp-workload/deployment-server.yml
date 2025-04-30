@@ -1,0 +1,99 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: server-{{.Iteration}}-{{.Replica}}
+spec:
+  replicas: {{.podReplicas}}
+  selector:
+    matchLabels:
+      name: server-{{.Iteration}}-{{.Replica}}
+  template:
+    metadata:
+      labels:
+        name: server-{{.Iteration}}-{{.Replica}}
+        app: gohttp-{{.Iteration}}-{{.Replica}}
+        {{range until .labelCount}}
+        label{{.}}: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        {{end}}
+    spec:
+      containers:
+      {{$data := .}}
+      {{range $ci, $ce := until .containerCount}}
+      - name: server-{{$ci}}
+        image: quay.io/redhat-performance/test-gohttp-probe:v0.0.3
+        resources:
+          requests:
+            memory: "25Mi"
+            cpu: "25m"
+        volumeMounts:
+        {{range until $data.secrets}}
+        - name: secret-{{.}}
+          mountPath: /secret{{.}}
+        {{end}}
+        {{range until $data.configmaps}}
+        - name: cm-{{.}}
+          mountPath: /configmap{{.}}
+        {{end}}
+        - name: podinfo
+          mountPath: /etc/podlabels
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{add $data.envStartPort $ce}}
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "{{add $data.envStartPort $ce}}"
+        {{range $data.containerEnvArgs}}
+        - name: "{{.name}}"
+          value: "{{.value}}"
+        {{end}}
+        {{range until $data.envAddVarCount}}
+        - name: ENVVAR_{{.}}
+          value: "{{randAlphaNum $data.envAddVarSize}}"
+        {{end}}
+        {{if $data.enableStartupProbe}}
+        startupProbe:
+          {{range $data.startupProbeArgs}}
+          {{.}}
+          {{end}}
+            port: {{add $data.envStartPort $ce}}
+        {{end}}
+        {{if $data.enableLivenessProbe}}
+        livenessProbe:
+          {{range $data.livenessProbeArgs}}
+          {{.}}
+          {{end}}
+            port: {{add $data.envStartPort $ce}}
+        {{end}}
+        {{if $data.enableReadinessProbe}}
+        readinessProbe:
+          {{range $data.readinessProbeArgs}}
+          {{.}}
+          {{end}}
+            port: {{add $data.envStartPort $ce}}
+        {{end}}
+      {{end}}
+      volumes:
+      {{range until .secrets}}
+      {{$r_index := add $data.Replica -1}}
+      {{$d_s_count := mul $r_index $data.secrets}}
+      {{$s_index := add $d_s_count . 1}}
+      - name: secret-{{.}}
+        secret:
+          secretName: server-{{$data.Iteration}}-{{$s_index}}
+      {{end}}
+      {{range until .configmaps}}
+      {{$r_index := add $data.Replica -1}}
+      {{$d_cm_count := mul $r_index $data.configmaps}}
+      {{$cm_index := add $d_cm_count . 1}}
+      - name: cm-{{.}}
+        configMap:
+          name: server-{{$data.Iteration}}-{{$cm_index}}
+      {{end}}
+      - name: podinfo
+        downwardAPI:
+          items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels

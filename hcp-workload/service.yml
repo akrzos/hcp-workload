@@ -1,0 +1,18 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: server-{{.Iteration}}-{{.Replica}}
+spec:
+  selector:
+    {{$r_index := add .Replica -1}}
+    app: gohttp-{{.Iteration}}-{{mod $r_index .servicePerDeploy | add1}}
+  ports:
+  {{$data := .}}
+  {{range until .ports}}
+  - protocol: TCP
+    name: port-{{add $data.envStartPort .}}
+    port: {{add 80 .}}
+    targetPort: {{add $data.envStartPort .}}
+  {{end}}
+  type: ClusterIP
