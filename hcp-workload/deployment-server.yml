@@ -24,8 +24,8 @@ spec:
         image: quay.io/redhat-performance/test-gohttp-probe:v0.0.3
         resources:
           requests:
-            memory: "25Mi"
-            cpu: "25m"
+            memory: "5Mi"
+            cpu: "5m"
         volumeMounts:
         {{range until $data.secrets}}
         - name: secret-{{.}}
