@@ -12,7 +12,7 @@ metricsEndpoints:
   alerts: [hcp-workload/alerts.yml]
   indexer:
     type: local
-    metricsDirectory: collected-metrics
+    metricsDirectory: {{.METRICS_DIRECTORY}}
 
 jobs:
 - name: workload0

@@ -3,25 +3,26 @@ set -e
 set -o pipefail
 
 # Workload Job Config
-export ITERATIONS=2
+export ITERATIONS=1
+export METRICS_DIRECTORY="testrun"
 export JOB_PAUSE_TIME="5m"
 export QPS=10
 export BURST=20
 
 # Objects Config
-export SERVER_DEPLOYMENTS=2
-export CLIENT_DEPLOYMENTS=2
-export CONFIGMAPS=2
-export CM_KEY_COUNT=2
+export SERVER_DEPLOYMENTS=1
+export CLIENT_DEPLOYMENTS=1
+export CONFIGMAPS=1
+export CM_KEY_COUNT=1
 export CM_VALUE_SIZE=512
-export SECRETS=2
-export SECRET_KEY_COUNT=2
+export SECRETS=1
+export SECRET_KEY_COUNT=1
 export SECRET_VALUE_SIZE=512
-export SERVICES=2
-export POD_COUNT=2
-export CONTAINER_COUNT=2
+export SERVICES=1
+export POD_COUNT=1
+export CONTAINER_COUNT=1
 
-export LABEL_COUNT=2
+export LABEL_COUNT=1
 
 
 export ENV_ADD_VAR_COUNT=1
