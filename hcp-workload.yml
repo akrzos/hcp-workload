@@ -85,6 +85,12 @@ jobs:
           value: 0
         envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
         envAddVarSize: {{.ENV_ADD_VAR_SIZE}}
+        nodeSelector:
+        - "node-role.kubernetes.io/workload: ''"
+        tolerations:
+        - key: "node-role.kubernetes.io/workload"
+          operator: "Exists"
+          effect: "NoExecute"
         enableStartupProbe: true
         startupProbeArgs:
         - "initialDelaySeconds: 0"
@@ -128,3 +134,10 @@ jobs:
         serviceStartPort: 80
         envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
         envAddVarSize: {{.ENV_ADD_VAR_SIZE}}
+        nodeSelector:
+        - "node-role.kubernetes.io/workload: ''"
+        enableTolerations: true
+        tolerations:
+        - key: "node-role.kubernetes.io/workload"
+          operator: "Exists"
+          effect: "NoExecute"

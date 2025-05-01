@@ -97,3 +97,13 @@ spec:
           - path: "labels"
             fieldRef:
               fieldPath: metadata.labels
+      nodeSelector:
+      {{range .nodeSelector}}
+        {{.}}
+      {{end}}
+      tolerations:
+      {{range .tolerations}}
+      - key: "{{.key}}"
+        operator: "{{.operator}}"
+        effect: "{{.effect}}"
+      {{end}}
