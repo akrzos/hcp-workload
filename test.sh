@@ -6,8 +6,8 @@ set -o pipefail
 export ITERATIONS=1
 export METRICS_DIRECTORY="testrun"
 export JOB_PAUSE_TIME="5m"
-export QPS=10
-export BURST=20
+export QPS=40
+export BURST=80
 
 # Objects Config
 export SERVER_DEPLOYMENTS=1
@@ -34,5 +34,7 @@ export ENV_ADD_VAR_SIZE=64
 # export ENV_ADD_VAR_SIZE=102400
 # export ENV_ADD_VAR_SIZE=1048576
 
-time kube-burner init -c hcp-workload.yml
-# time kube-burner init -c hcp-workload.yml --log-level debug
+cd results/
+time kube-burner init -c ../hcp-workload/job-workload.yml
+# time kube-burner init -c ../hcp-workload/job-workload --log-level debug
+cd ..

@@ -32,15 +32,18 @@ export ENV_ADD_VAR_SIZE=1024
 # export ENV_ADD_VAR_SIZE=1048576
 
 # Range of QPS and Bursts
-qps=("10" "20" "40" "80")
-burst=("20" "40" "80" "160")
+qps=("40" "80", "160")
+burst=("80" "160", "320")
 
+
+cd results/
 for i in "${!qps[@]}"; do
   export QPS=${qps[$i]}
   export BURST=${burst[$i]}
   echo "Running Test: $i, QPS: ${QPS}, BURST: ${BURST}"
   export METRICS_DIRECTORY="rate-test-${QPS}-${BURST}-${ts}"
   log_file="rate-test-${QPS}-${BURST}-${ts}.log"
-  time kube-burner init -c hcp-workload.yml | tee ${log_file}
-  # time kube-burner init -c hcp-workload.yml --log-level debug
+  time kube-burner init -c ../hcp-workload/job-workload.yml | tee ${log_file}
+  # time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done
+cd ..
