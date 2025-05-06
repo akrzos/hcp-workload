@@ -4,8 +4,11 @@ set -o pipefail
 
 # Workload Job Config
 export ITERATIONS=1
+if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
+if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
+export LOCAL_INDEXING=true
 export METRICS_DIRECTORY="testrun"
-export JOB_PAUSE_TIME="5m"
+export JOB_PAUSE_TIME="15s"
 export QPS=40
 export BURST=80
 
@@ -36,5 +39,5 @@ export ENV_ADD_VAR_SIZE=64
 
 cd results/
 time kube-burner init -c ../hcp-workload/job-workload.yml
-# time kube-burner init -c ../hcp-workload/job-workload --log-level debug
+# time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug
 cd ..

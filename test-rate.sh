@@ -6,7 +6,10 @@ set -o pipefail
 ts="$(date -u +%Y%m%d-%H%M%S)"
 
 # Workload Job Config
-export ITERATIONS=100
+export ITERATIONS=10
+if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
+if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
+export LOCAL_INDEXING=true
 export JOB_PAUSE_TIME="3m"
 
 # Objects Config
@@ -32,9 +35,8 @@ export ENV_ADD_VAR_SIZE=1024
 # export ENV_ADD_VAR_SIZE=1048576
 
 # Range of QPS and Bursts
-qps=("40" "80", "160")
-burst=("80" "160", "320")
-
+qps=("40" "80" "160")
+burst=("80" "160" "320")
 
 cd results/
 for i in "${!qps[@]}"; do

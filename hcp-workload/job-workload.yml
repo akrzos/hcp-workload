@@ -8,11 +8,22 @@ global:
       metric: P99
       threshold: 2m0s
 metricsEndpoints:
-- metrics: [hcp-workload/metrics-aggregated.yml]
-  alerts: [hcp-workload/alerts.yml]
+{{if .ES_SERVER}}
+- metrics: [../hcp-workload/metrics-aggregated.yml]
+  alerts: [../hcp-workload/alerts.yml]
+  indexer:
+    esServers: ["{{.ES_SERVER}}"]
+    insecureSkipVerify: true
+    defaultIndex: {{.ES_INDEX}}
+    type: opensearch
+{{end}}
+{{if eq .LOCAL_INDEXING "true"}}
+- metrics: [../hcp-workload/metrics-aggregated.yml]
+  alerts: [../hcp-workload/alerts.yml]
   indexer:
     type: local
     metricsDirectory: {{.METRICS_DIRECTORY}}
+{{end}}
 
 jobs:
 - name: workload0
@@ -41,19 +52,19 @@ jobs:
   churnDeletionStrategy: default
   objects:
 
-    - objectTemplate: secret.yml
+    - objectTemplate: ../hcp-workload/secret.yml
       replicas: {{mul .SERVER_DEPLOYMENTS .SECRETS}}
       inputVars:
         secretKeyCount: {{.SECRET_KEY_COUNT}}
         secretValueSize: {{.SECRET_VALUE_SIZE}}
 
-    - objectTemplate: configmap.yml
+    - objectTemplate: ../hcp-workload/configmap.yml
       replicas: {{mul .SERVER_DEPLOYMENTS .CONFIGMAPS}}
       inputVars:
         cmKeyCount: {{.CM_KEY_COUNT}}
         cmValueSize: {{.CM_VALUE_SIZE}}
 
-    - objectTemplate: service.yml
+    - objectTemplate: ../hcp-workload/service.yml
       replicas: {{mul .SERVER_DEPLOYMENTS .SERVICES}}
       inputVars:
         servicePerDeploy: {{.SERVICES}}
@@ -61,7 +72,7 @@ jobs:
         serviceStartPort: 80
         ports: {{.CONTAINER_COUNT}}
 
-    - objectTemplate: deployment-server.yml
+    - objectTemplate: ../hcp-workload/deployment-server.yml
       replicas: {{.SERVER_DEPLOYMENTS}}
       inputVars:
         podReplicas: {{.POD_COUNT}}
@@ -122,7 +133,7 @@ jobs:
         - "  path: /readyz"
         - "  scheme: HTTP"
 
-    - objectTemplate: deployment-client.yml
+    - objectTemplate: ../hcp-workload/deployment-client.yml
       replicas: {{.CLIENT_DEPLOYMENTS}}
       inputVars:
         podReplicas: {{.POD_COUNT}}
