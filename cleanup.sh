@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Cleans up a canceled hcp-workload
 set -e
 set -o pipefail
 

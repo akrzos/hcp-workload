@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Eventual workload rate test
 set -e
 set -o pipefail
 
@@ -7,6 +8,8 @@ ts="$(date -u +%Y%m%d-%H%M%S)"
 
 # Workload Job Config
 export ITERATIONS=10
+export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
+export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
@@ -43,8 +46,8 @@ for i in "${!qps[@]}"; do
   export QPS=${qps[$i]}
   export BURST=${burst[$i]}
   echo "Running Test: $i, QPS: ${QPS}, BURST: ${BURST}"
-  export METRICS_DIRECTORY="rate-test-${QPS}-${BURST}-${ts}"
-  log_file="rate-test-${QPS}-${BURST}-${ts}.log"
+  export METRICS_DIRECTORY="${ts}-rate-test-${i}-${QPS}-${BURST}"
+  log_file="${METRICS_DIRECTORY}.log"
   time kube-burner init -c ../hcp-workload/job-workload.yml | tee ${log_file}
   # time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done

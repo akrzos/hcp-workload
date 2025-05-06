@@ -16,6 +16,10 @@ metricsEndpoints:
     insecureSkipVerify: true
     defaultIndex: {{.ES_INDEX}}
     type: opensearch
+{{if .PROM_URL}}
+  endpoint: {{.PROM_URL}}
+  token: {{.PROM_TOKEN}}
+{{end}}
 {{end}}
 {{if eq .LOCAL_INDEXING "true"}}
 - metrics: [../hcp-workload/metrics-aggregated.yml]
@@ -23,6 +27,10 @@ metricsEndpoints:
   indexer:
     type: local
     metricsDirectory: {{.METRICS_DIRECTORY}}
+{{if .PROM_URL}}
+  endpoint: {{.PROM_URL}}
+  token: {{.PROM_TOKEN}}
+{{end}}
 {{end}}
 
 jobs:

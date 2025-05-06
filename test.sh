@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
+# For testing the workload
 set -e
 set -o pipefail
 
+# Start Timestamp
+ts="$(date -u +%Y%m%d-%H%M%S)"
+
 # Workload Job Config
 export ITERATIONS=1
+export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
+export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
-export METRICS_DIRECTORY="testrun"
+export METRICS_DIRECTORY="${ts}-testrun"
 export JOB_PAUSE_TIME="15s"
 export QPS=40
 export BURST=80
@@ -24,10 +30,7 @@ export SECRET_VALUE_SIZE=512
 export SERVICES=1
 export POD_COUNT=1
 export CONTAINER_COUNT=1
-
 export LABEL_COUNT=1
-
-
 export ENV_ADD_VAR_COUNT=1
 # Env var size in bytes
 # 1024 - 1KiB (1024 Bytes), 102400 - 100KiB Works
