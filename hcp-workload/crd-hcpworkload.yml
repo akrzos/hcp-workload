@@ -1,0 +1,29 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: hcpworkloads{{.Iteration}}.hcp-workload.example.com
+spec:
+  group: hcp-workload.example.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                workload:
+                  type: string
+                iterations:
+                  type: integer
+  scope: Namespaced
+  names:
+    plural: hcpworkloads{{.Iteration}}
+    singular: hcpworkload{{.Iteration}}
+    kind: HcpWorkload{{.Iteration}}
+    shortNames:
+    - hcpwkld{{.Iteration}}

@@ -19,6 +19,9 @@ export QPS=40
 export BURST=80
 
 # Objects Config
+export CRDS=50
+export CRS=1
+export CR_SIZE=1024
 export SERVER_DEPLOYMENTS=1
 export CLIENT_DEPLOYMENTS=1
 export CONFIGMAPS=1
@@ -40,7 +43,9 @@ export ENV_ADD_VAR_SIZE=64
 # export ENV_ADD_VAR_SIZE=102400
 # export ENV_ADD_VAR_SIZE=1048576
 
+log_file="${ts}-testrun-${ITERATIONS}.log"
+
 cd results/
-time kube-burner init -c ../hcp-workload/job-workload.yml
-# time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug
+time kube-burner init -c ../hcp-workload/job-workload.yml | tee ${log_file}
+# time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 cd ..

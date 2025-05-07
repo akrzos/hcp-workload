@@ -1,0 +1,16 @@
+---
+global:
+  gc: false
+
+jobs:
+- name: hcp-workload-crd
+  jobType: create
+  jobIterations: {{.ITERATIONS}}
+  namespacedIterations: false
+  cleanup: true
+  podWait: false
+  qps: {{.QPS}}
+  burst: {{.BURST}}
+  objects:
+  - objectTemplate: ../hcp-workload/crd-hcpworkload.yml
+    replicas: 1

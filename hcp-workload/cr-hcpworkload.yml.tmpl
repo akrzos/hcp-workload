@@ -1,0 +1,8 @@
+---
+apiVersion: hcp-workload.example.com/v1
+kind: HcpWorkload${index}
+metadata:
+  name: workload{{.Replica}}
+spec:
+  workload: {{randAlphaNum .crSize}}
+  iterations: {{.Iteration}}
