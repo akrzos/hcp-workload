@@ -34,7 +34,7 @@ metricsEndpoints:
 {{end}}
 
 jobs:
-- name: workload0
+- name: hcp-workload
   jobType: create
   jobIterations: {{.ITERATIONS}}
   namespace: hcp-workload
