@@ -16,6 +16,10 @@ export LOCAL_INDEXING=true
 export JOB_PAUSE_TIME="3m"
 
 # Objects Config
+export CRDS=10
+export CRS=5
+export CR_SIZE=1024
+# export CR_SIZE=1048576
 export SERVER_DEPLOYMENTS=2
 export CLIENT_DEPLOYMENTS=2
 export CONFIGMAPS=5
