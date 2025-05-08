@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ramp size of the CRs
+# Ramp size of the CRs test
 set -e
 set -o pipefail
 
@@ -8,8 +8,9 @@ ts="$(date -u +%Y%m%d-%H%M%S)"
 
 # Workload Job Config
 export ITERATIONS=10
-export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
-export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
+# kube-burner-ocp automatically obtains prometheus URL and token
+# export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
+# export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
@@ -20,8 +21,6 @@ export BURST=80
 # Objects Config
 export CRDS=50
 export CRS=10
-# CR Size ramped in loop
-# export CR_SIZE=1024
 export SERVER_DEPLOYMENTS=2
 export CLIENT_DEPLOYMENTS=2
 export CONFIGMAPS=5
@@ -46,13 +45,11 @@ export ENV_ADD_VAR_SIZE=1024
 # Range of CR Sizes
 cr_size=("1024" "131072" "262144" "524288")
 
-cd results/
 for i in "${!cr_size[@]}"; do
   export CR_SIZE=${cr_size[$i]}
   echo "Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, ${CR_SIZE}"
-  export METRICS_DIRECTORY="${ts}-ramp-cr-size-${i}-${CR_SIZE}"
+  export METRICS_DIRECTORY="results/${ts}-ramp-cr-size-${i}-${CR_SIZE}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner init -c ../hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner init -c ../hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml | tee ${log_file}
+  # time kube-burner-ocp init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done
-cd ..

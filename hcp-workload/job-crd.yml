@@ -12,5 +12,5 @@ jobs:
   qps: {{.QPS}}
   burst: {{.BURST}}
   objects:
-  - objectTemplate: ../hcp-workload/crd-hcpworkload.yml
+  - objectTemplate: hcp-workload/crd-hcpworkload.yml
     replicas: 1

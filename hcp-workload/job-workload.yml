@@ -9,8 +9,8 @@ global:
       threshold: 2m0s
 metricsEndpoints:
 {{if .ES_SERVER}}
-- metrics: [../hcp-workload/metrics-aggregated.yml]
-  alerts: [../hcp-workload/alerts.yml]
+- metrics: [hcp-workload/metrics-aggregated.yml]
+  alerts: [hcp-workload/alerts.yml]
   indexer:
     esServers: ["{{.ES_SERVER}}"]
     insecureSkipVerify: true
@@ -22,8 +22,8 @@ metricsEndpoints:
 {{end}}
 {{end}}
 {{if eq .LOCAL_INDEXING "true"}}
-- metrics: [../hcp-workload/metrics-aggregated.yml]
-  alerts: [../hcp-workload/alerts.yml]
+- metrics: [hcp-workload/metrics-aggregated.yml]
+  alerts: [hcp-workload/alerts.yml]
   indexer:
     type: local
     metricsDirectory: {{.METRICS_DIRECTORY}}
@@ -63,25 +63,25 @@ jobs:
   {{$data := .}}
   {{$intCRDS := .CRDS | int}}
   {{range until $intCRDS}}
-  - objectTemplate: ../hcp-workload/cr/hcpworkload{{.}}.yml
+  - objectTemplate: hcp-workload/cr/hcpworkload{{.}}.yml
     replicas: {{$data.CRS}}
     inputVars:
       crSize: {{$data.CR_SIZE}}
   {{end}}
 
-  - objectTemplate: ../hcp-workload/secret.yml
+  - objectTemplate: hcp-workload/secret.yml
     replicas: {{mul .SERVER_DEPLOYMENTS .SECRETS}}
     inputVars:
       secretKeyCount: {{.SECRET_KEY_COUNT}}
       secretValueSize: {{.SECRET_VALUE_SIZE}}
 
-  - objectTemplate: ../hcp-workload/configmap.yml
+  - objectTemplate: hcp-workload/configmap.yml
     replicas: {{mul .SERVER_DEPLOYMENTS .CONFIGMAPS}}
     inputVars:
       cmKeyCount: {{.CM_KEY_COUNT}}
       cmValueSize: {{.CM_VALUE_SIZE}}
 
-  - objectTemplate: ../hcp-workload/service.yml
+  - objectTemplate: hcp-workload/service.yml
     replicas: {{mul .SERVER_DEPLOYMENTS .SERVICES}}
     inputVars:
       servicePerDeploy: {{.SERVICES}}
@@ -89,7 +89,7 @@ jobs:
       serviceStartPort: 80
       ports: {{.CONTAINER_COUNT}}
 
-  - objectTemplate: ../hcp-workload/deployment-server.yml
+  - objectTemplate: hcp-workload/deployment-server.yml
     replicas: {{.SERVER_DEPLOYMENTS}}
     inputVars:
       podReplicas: {{.POD_COUNT}}
@@ -150,7 +150,7 @@ jobs:
       - "  path: /readyz"
       - "  scheme: HTTP"
 
-  - objectTemplate: ../hcp-workload/deployment-client.yml
+  - objectTemplate: hcp-workload/deployment-client.yml
     replicas: {{.CLIENT_DEPLOYMENTS}}
     inputVars:
       podReplicas: {{.POD_COUNT}}

@@ -3,6 +3,4 @@
 set -e
 set -o pipefail
 
-cd results/
-time kube-burner init -c ../hcp-workload/job-cleanup.yml
-cd ..
+time kube-burner-ocp init -c hcp-workload/job-cleanup.yml

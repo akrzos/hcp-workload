@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Creates the initial CRDs on the cluster and CR templates for kube-burner to use in follow on workload
+# Creates the initial CRDs on the cluster and CR templates for kube-burner-ocp to use in follow on workload
 set -e
 set -o pipefail
 
@@ -14,17 +14,15 @@ export ITERATIONS=50
 export QPS=5
 export BURST=5
 
-log_file="${ts}-crds-${ITERATIONS}.log"
+log_file="results/${ts}-crds-${ITERATIONS}.log"
 
-cd results/
-time kube-burner init -c ../hcp-workload/job-crd.yml | tee ${log_file}
-# time kube-burner init -c ../hcp-workload/job-crd.yml --log-level debug | tee ${log_file}
+
+time kube-burner-ocp --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-crd.yml | tee ${log_file}
+# time kube-burner-ocp --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-crd.yml --log-level debug | tee ${log_file}
 
 # Generate the CRs for use by the workload job afterwards
 for i in $(seq 0 $ITERATIONS); do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Generating hcp-workload/cr/hcpworkload${i}.yml" | tee -a ${log_file}
-  index=$i envsubst < ../hcp-workload/cr-hcpworkload.yml.tmpl > ../hcp-workload/cr/hcpworkload${i}.yml
+  index=$i envsubst < hcp-workload/cr-hcpworkload.yml.tmpl > hcp-workload/cr/hcpworkload${i}.yml
 done
 echo "$(date -u +%Y%m%d-%H%M%S) :: Completed adding ${ITERATIONS} CRDs and templated CRs" | tee -a ${log_file}
-
-cd ..
