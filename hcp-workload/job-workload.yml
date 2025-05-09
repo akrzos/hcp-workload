@@ -9,7 +9,7 @@ global:
       threshold: 2m0s
 metricsEndpoints:
 {{if .ES_SERVER}}
-- metrics: [hcp-workload/metrics-aggregated.yml]
+- metrics: [hcp-workload/metrics.yml, hcp-workload/metrics-report.yml]
   alerts: [hcp-workload/alerts.yml]
   indexer:
     esServers: ["{{.ES_SERVER}}"]
@@ -22,7 +22,7 @@ metricsEndpoints:
 {{end}}
 {{end}}
 {{if eq .LOCAL_INDEXING "true"}}
-- metrics: [hcp-workload/metrics-aggregated.yml]
+- metrics: [hcp-workload/metrics.yml, hcp-workload/metrics-report.yml]
   alerts: [hcp-workload/alerts.yml]
   indexer:
     type: local
