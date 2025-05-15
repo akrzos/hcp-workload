@@ -35,12 +35,12 @@ export POD_COUNT=1
 export CONTAINER_COUNT=1
 export LABEL_COUNT=0
 export ENV_ADD_VAR_COUNT=1
-export ENV_ADD_VAR_SIZE=1024
+# export ENV_ADD_VAR_SIZE=1024 # (Ramped in a variable below)
 
 # Range of ENV Var Sizes
 env_var_sizes=("1024" "2048" "4096" "8192" "16384" "32768" "65536" "131072" "262144" "524288" "1048576" "2097152" "4194304" "8388608" "16777216" "33554432")
-# 131072 results in
-# exec container process `/dist/main`: Argument list too long
+# 131072 results in "exec container process `/dist/main`: Argument list too long"
+
 for i in "${!env_var_sizes[@]}"; do
   export ENV_ADD_VAR_SIZE=${env_var_sizes[$i]}
   echo "Running Test: $i, Env Var Size: ${ENV_ADD_VAR_SIZE}"

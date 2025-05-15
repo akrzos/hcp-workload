@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-# Do not cleanup CRDS
-export CLEANUP_CRDS=false
+# Clean up CRDS
+export CLEANUP_CRDS=true
 
 time kube-burner-ocp --check-health=false init -c hcp-workload/job-cleanup.yml

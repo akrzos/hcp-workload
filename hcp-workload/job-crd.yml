@@ -5,7 +5,7 @@ global:
 jobs:
 - name: hcp-workload-crd
   jobType: create
-  jobIterations: {{.ITERATIONS}}
+  jobIterations: {{.CRDS}}
   namespacedIterations: false
   cleanup: true
   podWait: false
