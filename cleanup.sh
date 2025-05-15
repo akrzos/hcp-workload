@@ -3,4 +3,4 @@
 set -e
 set -o pipefail
 
-time kube-burner-ocp init -c hcp-workload/job-cleanup.yml --check-health=false
+time kube-burner-ocp --check-health=false init -c hcp-workload/job-cleanup.yml

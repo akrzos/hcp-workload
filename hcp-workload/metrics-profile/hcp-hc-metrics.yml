@@ -1,0 +1,58 @@
+# Hosted Cluster Metrics to collect
+
+# Sum of nodes ready over time (Detect when a Node has been not ready)
+- query: sum(kube_node_status_condition{status="true", condition="Ready"})
+  metricName: nodeReadyStatus
+
+# Total CPU Cores (Per machine) - Idle CPU usage = nodeCoresUsed
+# (Worker nodes only)
+- query: sum(node_cpu_info) by (instance) * on (instance) sum without (node) (label_replace(kube_node_role{role="worker"}, "instance", "$1", "node", "(.*)")) - on (instance) sum(irate(node_cpu_seconds_total{mode="idle"}[2m])) by (instance)
+  metricName: nodeCoresUsed
+
+# Sourced from /proc/meminfo, total - available = consumed memory
+# (Worker nodes only)
+- query: avg(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) by (instance)  * on (instance) sum without (node) (label_replace(kube_node_role{role="worker"}, "instance", "$1", "node", "(.*)"))
+  metricName: nodeMemoryConsumed
+
+
+# Cluster Object Counts
+
+- query: apiserver_storage_objects{resource="customresourcedefinitions.apiextensions.k8s.io"}
+  metricName: customResourceDefinitionCount
+
+- query: sum(kube_namespace_status_phase) by (phase) > 0
+  metricName: namespaceCount
+
+# Non-Terminated Pod Count
+# - query: sum(kube_pod_status_phase{phase!='Succeeded', phase!='Failed'})
+#   metricName: totalNonTerminatedPodCount
+
+- query: sum(kube_pod_status_phase) by (phase)
+  metricName: podStatusCount
+
+- query: count(kube_secret_info)
+  metricName: secretCount
+
+- query: count(kube_deployment_spec_replicas)
+  metricName: deploymentCount
+
+- query: count(kube_configmap_info)
+  metricName: configmapCount
+
+- query: count(kube_service_info)
+  metricName: serviceCount
+
+- query: count(openshift_route_created)
+  metricName: routeCount
+
+- query: kube_node_role
+  metricName: nodeRoles
+
+- query: sum(kube_node_status_condition{status="true"}) by (condition)
+  metricName: nodeStatus
+
+- query: count(kube_replicaset_spec_replicas)
+  metricName: replicaSetCount
+
+- query: count(kube_pod_info{} AND ON (pod) kube_pod_status_phase{phase="Running"}==1) by (node)
+  metricName: podDistribution
