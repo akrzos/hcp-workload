@@ -4,5 +4,5 @@ kind: HcpWorkload${index}
 metadata:
   name: workload{{.Replica}}
 spec:
-  workload: {{randAlphaNum .crSize}}
+  workload: {{randAlpha .crSize}}
   iterations: {{.Iteration}}
