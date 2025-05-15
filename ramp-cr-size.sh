@@ -25,10 +25,10 @@ export CRS=10
 export SERVER_DEPLOYMENTS=0
 export CLIENT_DEPLOYMENTS=0
 export CONFIGMAPS=0
-export CM_KEY_COUNT=10
+export CM_KEY_COUNT=1
 export CM_VALUE_SIZE=1024
 export SECRETS=0
-export SECRET_KEY_COUNT=10
+export SECRET_KEY_COUNT=1
 export SECRET_VALUE_SIZE=1024
 export SERVICES=0
 export POD_COUNT=1
@@ -39,7 +39,7 @@ export ENV_ADD_VAR_SIZE=1024
 
 # Range of CR Sizes
 cr_size=("1024" "2048" "4096" "8192" "16384" "32768" "65536" "131072" "262144" "524288" "1048576" "2097152" "4194304" "8388608" "16777216" "33554432")
-
+# 2097152 bytes results in kube-burner error "rpc error: code = ResourceExhausted desc = trying to send message larger than max (2097851 vs. 2097152)"
 
 for i in "${!cr_size[@]}"; do
   export CR_SIZE=${cr_size[$i]}
@@ -47,5 +47,5 @@ for i in "${!cr_size[@]}"; do
   export METRICS_DIRECTORY="results/${ts}-ramp-cr-size-${i}-${CR_SIZE}"
   log_file="${METRICS_DIRECTORY}.log"
   time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner-ocp init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  # time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done
