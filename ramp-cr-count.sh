@@ -27,7 +27,7 @@ export BURST=200
 # Objects Config
 export CRDS=1
 # export CRS=0 # (Ramped in a variable below)
-export CR_SIZE=1048576
+# export CR_SIZE=1048576 # (Adjust according to counts of CRs Tested)
 export SERVER_DEPLOYMENTS=0
 export CLIENT_DEPLOYMENTS=0
 export CONFIGMAPS=0
@@ -44,8 +44,18 @@ export ENV_ADD_VAR_COUNT=1
 export ENV_ADD_VAR_SIZE=1024
 
 # Range of CR Counts
-cr_count=("10" "100" "250" "500" "1000" "2000")
-
+# 1MiB seems to break with etcd around 1000
+# export CR_SIZE=1048576
+# cr_count=("10" "100" "250" "500" "1000" "2000")
+# 512KiB
+# export CR_SIZE=524288
+# cr_count=("20" "200" "500" "1000" "2000" "4000")
+# 256KiB
+# export CR_SIZE=262144
+# cr_count=("40" "400" "1000" "2000" "4000" "8000")
+# 128KiB
+export CR_SIZE=131072
+cr_count=("80" "800" "2000" "4000" "8000" "16000")
 
 for i in "${!cr_count[@]}"; do
   export CRS=${cr_count[$i]}
