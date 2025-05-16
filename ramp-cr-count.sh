@@ -9,6 +9,8 @@ ts="$(date -u +%Y%m%d-%H%M%S)"
 # checkhealth=true
 checkhealth=false
 
+timeout=30m
+
 # Workload Job Config
 export ITERATIONS=5
 # Although kube-burner-ocp automatically obtains prometheus URL and token
@@ -50,6 +52,6 @@ for i in "${!cr_count[@]}"; do
   echo "Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}"
   export METRICS_DIRECTORY="results/${ts}-ramp-cr-count-${i}-${CRS}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml | tee ${log_file}
+  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done
