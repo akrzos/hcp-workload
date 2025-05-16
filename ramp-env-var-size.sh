@@ -6,11 +6,15 @@ set -o pipefail
 # Start Timestamp
 ts="$(date -u +%Y%m%d-%H%M%S)"
 
+# checkhealth=true
+checkhealth=false
+
 # Workload Job Config
 export ITERATIONS=5
-# kube-burner-ocp automatically obtains prometheus URL and token
-# export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
-# export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
+# Although kube-burner-ocp automatically obtains prometheus URL and token
+# it is unclear why that is not working correctly
+export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
+export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
@@ -46,6 +50,6 @@ for i in "${!env_var_sizes[@]}"; do
   echo "Running Test: $i, Env Var Size: ${ENV_ADD_VAR_SIZE}"
   export METRICS_DIRECTORY="results/${ts}-ramp-env-size-${i}-${ENV_ADD_VAR_SIZE}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml | tee ${log_file}
+  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done
