@@ -1,5 +1,8 @@
 # Ignore files
 esservers.sh
+esserver.sh
+kubeconfigs.sh
+kubeconfig.sh
 
 # Ignore log files
 *.log
