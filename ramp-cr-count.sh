@@ -15,8 +15,8 @@ timeout=30m
 export ITERATIONS=5
 # Although kube-burner-ocp automatically obtains prometheus URL and token
 # it is unclear why that is not working correctly
-# export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
-# export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
+export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
+export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
@@ -72,7 +72,7 @@ for i in "${!cr_counts[@]}"; do
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
-  data_log_file="${METRICS_DIRECTORY}-kb.log"
+  data_log_file="${METRICS_DIRECTORY}-data.log"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}" | tee -a "${data_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: $(date -u)" | tee -a "${data_log_file}"
   time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml | tee ${kb_log_file}
