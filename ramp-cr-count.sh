@@ -21,8 +21,8 @@ if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
 export JOB_PAUSE_TIME="15s"
-export QPS=100
-export BURST=200
+export QPS=50
+export BURST=100
 
 # Objects Config
 export CRDS=1
@@ -46,20 +46,25 @@ export ENV_ADD_VAR_SIZE=1024
 # Range of CR Size + CR Counts
 # 1MiB seems to break with etcd around 1000
 # export CR_SIZE=1048576
-# cr_count=("10" "100" "250" "500" "1000" "2000")
+# cr_count=("10" "100" "250" "500" "1000")
 # cr_count=("10" "100" "250" "500")
 # 512KiB
 # export CR_SIZE=524288
-# cr_count=("20" "200" "500" "1000" "2000" "4000")
+# cr_count=("20" "200" "500" "1000" "2000")
 # cr_count=("20" "200" "500" "1000")
 # 256KiB
 # export CR_SIZE=262144
-# cr_count=("40" "400" "1000" "2000" "4000" "8000")
+# cr_count=("40" "400" "1000" "2000" "4000")
 # cr_count=("40" "400" "1000" "2000")
 # 128KiB
-export CR_SIZE=131072
-# cr_count=("80" "800" "2000" "4000" "8000" "16000")
-cr_count=("80" "800" "2000" "4000" )
+# export CR_SIZE=131072
+# cr_count=("80" "800" "2000" "4000" "8000")
+# cr_count=("80" "800" "2000" "4000")
+# 64KiB
+export CR_SIZE=65536
+# cr_count=("160" "1600" "4000" "8000" "16000")
+cr_count=("160" "1600" "4000" "8000")
+
 
 for i in "${!cr_count[@]}"; do
   export CRS=${cr_count[$i]}
