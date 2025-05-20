@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ramp count of Large CRs
+# Ramp count of Small CRs with Pods
 # set -e
 set -o pipefail
 
@@ -12,7 +12,7 @@ checkhealth=false
 timeout=30m
 
 # Workload Job Config
-export ITERATIONS=5
+export ITERATIONS=40
 # Although kube-burner-ocp automatically obtains prometheus URL and token
 # it is unclear why that is not working correctly
 export PROM_URL=https://$(oc -n openshift-monitoring get route prometheus-k8s -oyaml | grep host: | head -1 | awk '{ print $2 }')
@@ -27,20 +27,20 @@ export BURST=100
 # Objects Config
 export CRDS=1
 # export CRS=0 # (Ramped in a variable below)
-# export CR_SIZE=1048576 # (Adjust according to counts of CRs Tested)
-export SERVER_DEPLOYMENTS=0
-export CLIENT_DEPLOYMENTS=0
-export CONFIGMAPS=0
-export CM_KEY_COUNT=1
+# export CR_SIZE=32768 # (Adjust according to counts of CRs Tested)
+export SERVER_DEPLOYMENTS=2
+export CLIENT_DEPLOYMENTS=2
+export CONFIGMAPS=2
+export CM_KEY_COUNT=2
 export CM_VALUE_SIZE=1024
-export SECRETS=0
-export SECRET_KEY_COUNT=1
+export SECRETS=2
+export SECRET_KEY_COUNT=2
 export SECRET_VALUE_SIZE=1024
-export SERVICES=0
-export POD_COUNT=1
-export CONTAINER_COUNT=1
-export LABEL_COUNT=0
-export ENV_ADD_VAR_COUNT=1
+export SERVICES=2
+export POD_COUNT=2
+export CONTAINER_COUNT=2
+export LABEL_COUNT=2
+export ENV_ADD_VAR_COUNT=2
 export ENV_ADD_VAR_SIZE=1024
 
 
@@ -48,23 +48,26 @@ cr_sizes=()
 cr_counts=()
 
 # Range of CR Size + CR Counts
-# 1024KiB / 1MiB
-cr_sizes+=("1048576" "1048576" "1048576" "1048576")
-cr_counts+=("10" "100" "250" "500")
-# 512KiB
-cr_sizes+=("524288" "524288" "524288" "524288")
-cr_counts+=("20" "200" "500" "1000")
-# 256KiB
-cr_sizes+=("262144" "262144" "262144" "262144")
+# 32KiB
+cr_sizes+=("32768" "32768" "32768" "32768")
 cr_counts+=("40" "400" "1000" "2000")
-# 128KiB
-cr_sizes+=("131072" "131072" "131072" "131072")
+# 16KiB
+cr_sizes+=("16384" "16384" "16384" "16384")
 cr_counts+=("80" "800" "2000" "4000")
-# 64KiB
-cr_sizes+=("65536" "65536" "65536" "65536")
+# 8KiB
+cr_sizes+=("8192" "8192" "8192" "8192")
 cr_counts+=("160" "1600" "4000" "8000")
+# 4KiB
+cr_sizes+=("4096" "4096" "4096" "4096")
+cr_counts+=("320" "3200" "8000" "16000")
+# 2KiB
+cr_sizes+=("2048" "2048" "2048" "2048")
+cr_counts+=("640" "6400" "16000" "32000")
+# 1KiB
+cr_sizes+=("1024" "1024" "1024" "1024")
+cr_counts+=("1280" "12800" "32000" "64000")
 
-test_dir="results/${ts}-ramp-large-cr-counts"
+test_dir="results/${ts}-ramp-small-cr-counts-with-pods"
 run_log_file="${test_dir}/run.log"
 for i in "${!cr_counts[@]}"; do
   export CRS=${cr_counts[$i]}
