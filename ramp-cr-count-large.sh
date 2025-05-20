@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Ramp count of the CRs test
-set -e
+# set -e
 set -o pipefail
 
 # Start Timestamp
@@ -64,22 +64,31 @@ cr_counts+=("80" "800" "2000" "4000")
 cr_sizes+=("65536" "65536" "65536" "65536")
 cr_counts+=("160" "1600" "4000" "8000")
 
+test_dir="results/${ts}-ramp-cr-count"
+run_log_file="${test_dir}/run.log"
 for i in "${!cr_counts[@]}"; do
   export CRS=${cr_counts[$i]}
   export CR_SIZE=${cr_sizes[$i]}
-  export METRICS_DIRECTORY="results/${ts}-ramp-cr-count/${i}-${CRS}-${CR_SIZE}"
+  export METRICS_DIRECTORY="${test_dir}/${i}-${CRS}-${CR_SIZE}"
+  kb_log_file="${METRICS_DIRECTORY}-kb.log"
   data_dir="${METRICS_DIRECTORY}-data"
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
-  kb_log_file="${METRICS_DIRECTORY}-kb.log"
-  data_log_file="${METRICS_DIRECTORY}-data.log"
-  echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}" | tee -a "${data_log_file}"
-  echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: $(date -u)" | tee -a "${data_log_file}"
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}" | tee -a "${run_log_file}"
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: $(date -u)" | tee -a "${run_log_file}"
   time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml | tee ${kb_log_file}
   # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml --log-level debug | tee ${kb_log_file}
-  echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: $(date -u)" | tee -a "${data_log_file}"
-  ./collect-data.sh ${data_dir} 2>&1 | tee -a ${data_log_file}
-  echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${data_log_file}"
+  echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
+  kb_rc=$?
+  echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: $(date -u)" | tee -a "${run_log_file}"
+  ./collect-data.sh ${data_dir} 2>&1 | tee -a ${run_log_file}
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
-  echo "-----------------------------------------"
+  echo "-----------------------------------------"  | tee -a "${run_log_file}"
+
+  # Exit so we know last test failed kube-burner
+  if [ $kb_rc -ne 0 ]; then
+    echo "$(date -u +%Y%m%d-%H%M%S) :: Last test failed kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
+    exit 1
+  fi
 done

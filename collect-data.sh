@@ -5,8 +5,6 @@
 
 data_dir=$1
 
-echo "Data Dir: ${data_dir}"
-
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting MC Data"
 
 oc --kubeconfig ${MC_KUBECONFIG} get clusterversion > ${data_dir}/mc.clusterversion
@@ -16,6 +14,9 @@ oc --kubeconfig ${MC_KUBECONFIG} get no > ${data_dir}/mc.nodes
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HCP Data"
 
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -o wide > ${data_dir}/hcp.pods
+
+# Container restarts
+oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -o json | jq -r '.items[] | .metadata.name as $podname | .status.containerStatuses[] | [$podname, .restartCount, .name ] | @tsv' | column -t > ${data_dir}/hcp.containers.restarts
 
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver -o wide > ${data_dir}/hcp.pods.kas
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver -o yaml > ${data_dir}/hcp.pods.kas.yml
@@ -32,3 +33,10 @@ oc --kubeconfig ${HC_KUBECONFIG} get ns > ${data_dir}/hc.namespaces
 oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide > ${data_dir}/hc.pods
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Finished Data Collection"
+
+# Things I want shown in run log
+echo "$(date -u +%Y%m%d-%H%M%S) :: KAS and Etcd Restarts"
+# oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver -o json | jq -r '.items[] | .metadata.name as $podname | .status.containerStatuses[] | [$podname, .restartCount, .name ] | @tsv'
+# oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd -o json | jq -r '.items[] | .metadata.name as $podname | .status.containerStatuses[] | [$podname, .restartCount, .name ] | @tsv'
+oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver
+oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd --no-headers
