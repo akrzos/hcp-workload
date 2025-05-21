@@ -75,13 +75,15 @@ for i in "${!cr_counts[@]}"; do
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}" | tee -a "${run_log_file}"
-  echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: $(date -u)" | tee -a "${run_log_file}"
+  KB_START_TIME=$(date +%s)
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
   time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml | tee ${kb_log_file}
   # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml --log-level debug | tee ${kb_log_file}
   kb_rc=$?
   echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
-  echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: $(date -u)" | tee -a "${run_log_file}"
-  ./collect-data.sh ${data_dir} 2>&1 | tee -a ${run_log_file}
+  KB_END_TIME=$(date +%s)
+  echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: ${KB_END_TIME}" | tee -a "${run_log_file}"
+  ./collect-data.sh ${data_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
   echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"

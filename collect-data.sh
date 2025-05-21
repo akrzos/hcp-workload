@@ -4,6 +4,12 @@
 # set -o pipefail
 
 data_dir=$1
+if [[ -n "$2" ]]; then
+  kb_start_time=$2
+fi
+if [[ -n "$3" ]]; then
+  kb_end_time=$3
+fi
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting MC Data"
 
@@ -42,3 +48,8 @@ echo "$(date -u +%Y%m%d-%H%M%S) :: KAS and Etcd Restarts"
 # oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd -o json | jq -r '.items[] | .metadata.name as $podname | .status.containerStatuses[] | [$podname, .restartCount, .name ] | @tsv'
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd --no-headers
+
+# Collect Metrics
+if [[ -n "$kb_start_time" ]]; then
+  ./scripts/metrics.sh ${kb_start_time} ${kb_end_time}
+fi
