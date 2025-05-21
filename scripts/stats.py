@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 # Quick python to calculate count/min/avg/p50/095/p99/max of a list of data
+import argparse
 import sys
 import json
 import statistics
 
 
-if __name__ == "__main__":
+def main():
+
+  parser = argparse.ArgumentParser(
+      description="Calculate stats over a json list of values",
+      prog="stats.py", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+  parser.add_argument("-j", "--json", action="store_true", default=False, help="Displays as Json")
+
+  cliargs = parser.parse_args()
+
   try:
     # Read JSON Data
     input = sys.stdin.read()
@@ -42,7 +52,11 @@ if __name__ == "__main__":
       "max": int(maximum * 1000) / 1000,
     }
 
-    print(json.dumps(results, indent=2))
+    if cliargs.json:
+      print(json.dumps(results, indent=2))
+    else:
+      print("Cnt :: Min :: Avg :: p50 :: p95 :: p99 :: Max")
+      print("{} :: {} :: {} :: {} :: {} :: {} :: {}".format(results['cnt'], results['min'], results['avg'], results['p50'], results['p95'], results['p99'], results['max']))
 
   except json.JSONDecodeError as e:
     print(f"Error: Invalid JSON input. {e}", file=sys.stderr)
@@ -50,3 +64,6 @@ if __name__ == "__main__":
   except Exception as e:
     print(f"An unexpected error occurred: {e}", file=sys.stderr)
     sys.exit(1)
+
+if __name__ == "__main__":
+  sys.exit(main())

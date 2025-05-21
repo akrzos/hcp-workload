@@ -25,8 +25,7 @@ PROM_TOKEN=${MC_PROM_TOKEN} envsubst < scripts/promtool.http.config.yml.tmpl > s
 
 kas_cpu="node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace=\"${HC_NS}\", pod=~\"kube-apiserver-.*\", container=\"kube-apiserver\"}"
 
-echo "--- Get HC Single KAS Container Usage ---"
-echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_cpu\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
+echo "--- HC Single KAS Container Usage ---"
+# echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_cpu\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
 all_kas_container_cpu_usage=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_cpu" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
-
-echo "$all_kas_container_cpu_usage" | python scripts/stats.py
+echo "$all_kas_container_cpu_usage" | python scripts/stats.py | column -t
