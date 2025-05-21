@@ -32,6 +32,8 @@ oc --kubeconfig ${HC_KUBECONFIG} get no -A > ${data_dir}/hc.nodes
 oc --kubeconfig ${HC_KUBECONFIG} get ns > ${data_dir}/hc.namespaces
 oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide > ${data_dir}/hc.pods
 
+oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide > ${data_dir}/hc.crds
+
 echo "$(date -u +%Y%m%d-%H%M%S) :: Finished Data Collection"
 
 # Things I want shown in run log
