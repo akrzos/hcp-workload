@@ -25,7 +25,29 @@ PROM_TOKEN=${MC_PROM_TOKEN} envsubst < scripts/promtool.http.config.yml.tmpl > s
 
 kas_cpu="node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace=\"${HC_NS}\", pod=~\"kube-apiserver-.*\", container=\"kube-apiserver\"}"
 
-echo "--- HC Single KAS Container Usage ---"
+kas_cpu_sum="sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace=\"${HC_NS}\", pod=~\"kube-apiserver-.*\", container=\"kube-apiserver\"})"
+
+kas_mem="container_memory_working_set_bytes{namespace=\"${HC_NS}\", pod=~\"kube-apiserver-.*\", container=\"kube-apiserver\"} / 1024 / 1024 / 1024"
+
+kas_mem_sum="sum(container_memory_working_set_bytes{namespace=\"${HC_NS}\", pod=~\"kube-apiserver-.*\", container=\"kube-apiserver\"}) / 1024 / 1024 / 1024"
+
+echo "--- HC Single KAS Container CPU Usage (Cores) ---"
 # echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_cpu\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
-all_kas_container_cpu_usage=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_cpu" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
-echo "$all_kas_container_cpu_usage" | python scripts/stats.py | column -t
+cpu_usage_json=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_cpu" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
+echo "$cpu_usage_json" | python scripts/stats.py | column -t
+
+echo "--- HC Single KAS Container Memory Usage (GiB) ---"
+# echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_mem\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
+mem_usage_json=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_mem" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
+echo "$mem_usage_json" | python scripts/stats.py | column -t
+
+
+echo "--- HC KAS Containers Total CPU Usage (Cores) ---"
+# echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_cpu_sum\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
+cpu_usage_sum_json=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_cpu_sum" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
+echo "$cpu_usage_sum_json" | python scripts/stats.py | column -t
+
+echo "--- HC KAS Containers Total Memory Usage (GiB) ---"
+# echo "promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE \"$kas_mem_sum\" -o json | jq '[.[] | .values[] | .[1] | tonumber]'"
+mem_usage_sum_json=$(promtool query range $MC_PROM_URL --http.config.file=scripts/mc.promtool.http.config.yml --start=$START_TIME --end=$END_TIME --step=$STEP_SIZE "$kas_mem_sum" -o json | jq '[.[] | .values[] | .[1] | tonumber]')
+echo "$mem_usage_sum_json" | python scripts/stats.py | column -t
