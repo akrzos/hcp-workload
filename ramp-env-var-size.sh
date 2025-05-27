@@ -52,6 +52,6 @@ for i in "${!env_var_sizes[@]}"; do
   echo "Running Test: $i, Env Var Size: ${ENV_ADD_VAR_SIZE}"
   export METRICS_DIRECTORY="results/${ts}-ramp-env-size-${i}-${ENV_ADD_VAR_SIZE}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml | tee ${log_file}
+  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
 done

@@ -6,4 +6,4 @@ set -o pipefail
 # Clean up CRDS
 export CLEANUP_CRDS=true
 
-time kube-burner-ocp --check-health=false init -c hcp-workload/job-cleanup.yml
+time kube-burner-ocp --check-health=false --enable-file-logging=False init -c hcp-workload/job-cleanup.yml
