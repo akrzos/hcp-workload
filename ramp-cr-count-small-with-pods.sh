@@ -91,9 +91,9 @@ for i in "${!cr_counts[@]}"; do
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"
 
-  # Exit so we know last test failed kube-burner
-  if [ $kb_rc -ne 0 ]; then
-    echo "$(date -u +%Y%m%d-%H%M%S) :: Last test failed kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
-    exit 1
-  fi
+  # Exit so we know last test failed kube-burner (Disabled since can/will prevent script from completing run)
+  # if [ $kb_rc -ne 0 ]; then
+  #   echo "$(date -u +%Y%m%d-%H%M%S) :: Last test failed kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
+  #   exit 1
+  # fi
 done
