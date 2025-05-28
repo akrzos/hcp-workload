@@ -55,6 +55,6 @@ for i in "${!qps[@]}"; do
   echo "Running Test: $i, QPS: ${QPS}, BURST: ${BURST}"
   export METRICS_DIRECTORY="results/${ts}-ramp-qps-${i}-${QPS}-${BURST}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml | tee ${log_file}
-  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml --log-level debug | tee ${log_file}
+  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml 2>&1 | tee ${log_file}
+  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml --log-level debug 2>&1 | tee ${log_file}
 done
