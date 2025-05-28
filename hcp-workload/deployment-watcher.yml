@@ -1,0 +1,56 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: watcher-{{.Iteration}}-{{.Replica}}
+spec:
+  replicas: {{.podReplicas}}
+  selector:
+    matchLabels:
+      name: watcher-{{.Iteration}}-{{.Replica}}
+  template:
+    metadata:
+      labels:
+        name: watcher-{{.Iteration}}-{{.Replica}}
+        app: watcher-{{.Iteration}}-{{.Replica}}
+    spec:
+      containers:
+      {{$data := .}}
+      {{range until .containerCount}}
+      - name: watcher-{{.}}
+        image: quay.io/akrzos/occli:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Start Watching All Pods"
+          while true; do
+            oc get po -A -w > /dev/null
+            echo "Watching All Pods"
+          done
+        resources:
+          requests:
+            memory: "5Mi"
+            cpu: "5m"
+        volumeMounts:
+        - name: secret-kc
+          mountPath: /opt
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KUBECONFIG
+          value: "/opt/kubeconfig"
+      {{end}}
+      volumes:
+      - name: secret-kc
+        secret:
+          secretName: kubeconfig
+      nodeSelector:
+      {{range .nodeSelector}}
+        {{.}}
+      {{end}}
+      tolerations:
+      {{range .tolerations}}
+      - key: "{{.key}}"
+        operator: "{{.operator}}"
+        effect: "{{.effect}}"
+      {{end}}

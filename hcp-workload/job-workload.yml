@@ -169,3 +169,23 @@ jobs:
       - key: "node-role.kubernetes.io/workload"
         operator: "Exists"
         effect: "NoExecute"
+
+{{$intWATCHERS := .WATCHERS | int}}
+{{if gt $intWATCHERS 0}}
+  - objectTemplate: hcp-workload/secret-kc.yml
+    replicas: 1
+    inputVars:
+      secretKC: {{.SECRET_KC}}
+
+  - objectTemplate: hcp-workload/deployment-watcher.yml
+    replicas: {{.WATCHERS}}
+    inputVars:
+      podReplicas: {{.WATCHER_POD_REPLICAS}}
+      containerCount: {{.WATCHER_CONTAINER_COUNT}}
+      nodeSelector:
+      - "node-role.kubernetes.io/workload: ''"
+      tolerations:
+      - key: "node-role.kubernetes.io/workload"
+        operator: "Exists"
+        effect: "NoExecute"
+{{end}}
