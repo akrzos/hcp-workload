@@ -60,6 +60,7 @@ for i in "${!watchers_counts[@]}"; do
   export WATCHERS=${watchers_counts[$i]}
   export METRICS_DIRECTORY="${test_dir}/${i}-${WATCHERS}"
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
+  kb_clean_log_file="${METRICS_DIRECTORY}-kb-clean.log"
   data_dir="${METRICS_DIRECTORY}-data"
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
@@ -73,6 +74,9 @@ for i in "${!watchers_counts[@]}"; do
   KB_END_TIME=$(date +%s)
   echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: ${KB_END_TIME}" | tee -a "${run_log_file}"
   ./collect-data.sh ${data_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Performing Cleanup" | tee -a "${run_log_file}"
+  export CLEANUP_CRDS=false
+  time kube-burner-ocp --check-health=false --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
   echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"
