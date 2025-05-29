@@ -9,7 +9,7 @@ ts="$(date -u +%Y%m%d-%H%M%S)"
 # checkhealth=true
 checkhealth=false
 
-timeout=60m
+timeout=30m
 
 # Workload Job Config
 export ITERATIONS=10
@@ -20,14 +20,14 @@ export PROM_TOKEN=$(oc -n openshift-monitoring create token prometheus-k8s)
 if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
-export JOB_PAUSE_TIME="2m"
+export JOB_PAUSE_TIME="5m"
 export QPS=50
 export BURST=100
 
 # Objects Config
-export CRDS=0
-export CRS=0
-export CR_SIZE=0
+export CRDS=1
+export CRS=250
+export CR_SIZE=1048576
 export SERVER_DEPLOYMENTS=1
 export CLIENT_DEPLOYMENTS=1
 export CONFIGMAPS=1
@@ -46,13 +46,13 @@ export ENV_ADD_VAR_SIZE=1024
 # Watcher deployment configuration
 # export WATCHERS=1 # (Ramped in a variable below)
 export WATCHER_POD_REPLICAS=1
-export WATCHER_CONTAINER_COUNT=4
+export WATCHER_CONTAINER_COUNT=2
 export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 
 watchers_counts=()
 
 # Range of Watcher Replicas
-watchers_counts+=("8" "12" "16" "32" "48")
+watchers_counts+=("8" "12" "16")
 
 test_dir="results/${ts}-watchers"
 run_log_file="${test_dir}/run.log"
