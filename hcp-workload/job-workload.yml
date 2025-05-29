@@ -114,7 +114,7 @@ jobs:
       envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
       envAddVarSize: {{.ENV_ADD_VAR_SIZE}}
       nodeSelector:
-      - "node-role.kubernetes.io/workload: ''"
+      # - "node-role.kubernetes.io/workload: ''"
       tolerations:
       - key: "node-role.kubernetes.io/workload"
         operator: "Exists"
@@ -163,7 +163,7 @@ jobs:
       envAddVarCount: {{.ENV_ADD_VAR_COUNT}}
       envAddVarSize: {{.ENV_ADD_VAR_SIZE}}
       nodeSelector:
-      - "node-role.kubernetes.io/workload: ''"
+      # - "node-role.kubernetes.io/workload: ''"
       enableTolerations: true
       tolerations:
       - key: "node-role.kubernetes.io/workload"
@@ -183,7 +183,7 @@ jobs:
       podReplicas: {{.WATCHER_POD_REPLICAS}}
       containerCount: {{.WATCHER_CONTAINER_COUNT}}
       nodeSelector:
-      - "node-role.kubernetes.io/workload: ''"
+      # - "node-role.kubernetes.io/workload: ''"
       tolerations:
       - key: "node-role.kubernetes.io/workload"
         operator: "Exists"
