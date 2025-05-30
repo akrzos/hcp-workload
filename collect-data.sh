@@ -41,7 +41,7 @@ oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide > ${data_dir}/hc.pods
 oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide > ${data_dir}/hc.crds
 
 # Get the HCP CRs and count of CRs
-oc --kubeconfig ${HC_KUBECONFIG} api-resources | grep hcp | awk '{print $1}' | xargs -I % oc --kubeconfig ${HC_KUBECONFIG} get % -A --no-headers > ${data_dir}/hc.hcp.crs
+oc --kubeconfig ${HC_KUBECONFIG} api-resources | grep hcp | awk '{print $1}' | xargs -I % oc --kubeconfig ${HC_KUBECONFIG} get % -A --no-headers 2>/dev/null > ${data_dir}/hc.hcp.crs
 cat ${data_dir}/hc.hcp.crs | wc -l > ${data_dir}/hc.hcp.crs.count
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Finished Data Collection"
