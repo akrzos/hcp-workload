@@ -23,10 +23,10 @@ spec:
         - /bin/bash
         - -c
         - |
-          echo "Start Watching Pods in hcp-workload-{{$data.Iteration}}"
+          echo "Start watching hcpworkloads0 in hcp-workload-{{$data.Iteration}}"
           while true; do
-            oc get po -n hcp-workload-{{$data.Iteration}} -w
-            echo "Watching Pods in hcp-workload-{{$data.Iteration}}"
+            oc get hcpworkloads0 -n hcp-workload-{{$data.Iteration}} -w
+            echo "Watching hcpworkloads0 in hcp-workload-{{$data.Iteration}}"
           done
         resources:
           requests:
