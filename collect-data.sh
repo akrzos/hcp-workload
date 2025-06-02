@@ -17,6 +17,11 @@ oc --kubeconfig ${MC_KUBECONFIG} get clusterversion > ${data_dir}/mc.clustervers
 oc --kubeconfig ${MC_KUBECONFIG} get clusteroperators > ${data_dir}/mc.clusteroperators
 oc --kubeconfig ${MC_KUBECONFIG} get no > ${data_dir}/mc.nodes
 
+oc --kubeconfig ${MC_KUBECONFIG} get hcp -A > ${data_dir}/mc.hcp
+oc --kubeconfig ${MC_KUBECONFIG} get hcp -A -o yaml > ${data_dir}/mc.hcp.yaml
+oc --kubeconfig ${MC_KUBECONFIG} get nodepool -A > ${data_dir}/mc.nodepool
+oc --kubeconfig ${MC_KUBECONFIG} get nodepool -A -o yaml > ${data_dir}/mc.nodepool.yaml
+
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HCP Data"
 
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -o wide > ${data_dir}/hcp.pods
@@ -37,6 +42,8 @@ oc --kubeconfig ${HC_KUBECONFIG} get no -A > ${data_dir}/hc.nodes
 
 oc --kubeconfig ${HC_KUBECONFIG} get ns > ${data_dir}/hc.namespaces
 oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide > ${data_dir}/hc.pods
+
+oc --kubeconfig ${HC_KUBECONFIG} get po -n hcp-workload-0 -o yaml > ${data_dir}/hc.pods.hcp-workload-0.yaml
 
 oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide > ${data_dir}/hc.crds
 
