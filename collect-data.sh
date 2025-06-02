@@ -16,6 +16,9 @@ echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting MC Data"
 oc --kubeconfig ${MC_KUBECONFIG} get clusterversion > ${data_dir}/mc.clusterversion
 oc --kubeconfig ${MC_KUBECONFIG} get clusteroperators > ${data_dir}/mc.clusteroperators
 oc --kubeconfig ${MC_KUBECONFIG} get no > ${data_dir}/mc.nodes
+oc --kubeconfig ${MC_KUBECONFIG} describe no > ${data_dir}/mc.nodes.describe
+
+oc --kubeconfig ${MC_KUBECONFIG} get po -A -o wide > ${data_dir}/mc.pods
 
 oc --kubeconfig ${MC_KUBECONFIG} get hcp -A > ${data_dir}/mc.hcp
 oc --kubeconfig ${MC_KUBECONFIG} get hcp -A -o yaml > ${data_dir}/mc.hcp.yaml
