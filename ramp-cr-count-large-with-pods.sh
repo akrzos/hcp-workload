@@ -43,26 +43,31 @@ export LABEL_COUNT=2
 export ENV_ADD_VAR_COUNT=2
 export ENV_ADD_VAR_SIZE=1024
 
+# Watcher deployment configuration
+export WATCHERS=0
+export WATCHER_POD_REPLICAS=0
+export WATCHER_CONTAINER_COUNT=0
+export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 
 cr_sizes=()
 cr_counts=()
 
 # Range of CR Size + CR Counts
-# 1024KiB / 1MiB
-cr_sizes+=("1048576" "1048576" "1048576" "1048576")
-cr_counts+=("10" "100" "250" "500")
-# 512KiB
-cr_sizes+=("524288" "524288" "524288" "524288")
-cr_counts+=("20" "200" "500" "1000")
-# 256KiB
-cr_sizes+=("262144" "262144" "262144" "262144")
-cr_counts+=("40" "400" "1000" "2000")
-# 128KiB
-cr_sizes+=("131072" "131072" "131072" "131072")
-cr_counts+=("80" "800" "2000" "4000")
 # 64KiB
 cr_sizes+=("65536" "65536" "65536" "65536")
 cr_counts+=("160" "1600" "4000" "8000")
+# 128KiB
+cr_sizes+=("131072" "131072" "131072" "131072")
+cr_counts+=("80" "800" "2000" "4000")
+# 256KiB
+cr_sizes+=("262144" "262144" "262144" "262144")
+cr_counts+=("40" "400" "1000" "2000")
+# 512KiB
+cr_sizes+=("524288" "524288" "524288" "524288")
+cr_counts+=("20" "200" "500" "1000")
+# 1024KiB / 1MiB
+cr_sizes+=("1048576" "1048576" "1048576" "1048576")
+cr_counts+=("10" "100" "250" "500")
 
 test_dir="results/${ts}-ramp-large-cr-counts-with-pods"
 run_log_file="${test_dir}/run.log"
@@ -71,6 +76,7 @@ for i in "${!cr_counts[@]}"; do
   export CR_SIZE=${cr_sizes[$i]}
   export METRICS_DIRECTORY="${test_dir}/${i}-${CRS}-${CR_SIZE}"
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
+  kb_clean_log_file="${METRICS_DIRECTORY}-kb-clean.log"
   data_dir="${METRICS_DIRECTORY}-data"
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
@@ -82,8 +88,19 @@ for i in "${!cr_counts[@]}"; do
   kb_rc=$?
   echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
   KB_END_TIME=$(date +%s)
+  KB_RUNTIME=$(($KB_END_TIME - $KB_START_TIME))
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Test Time (Seconds) : ${KB_RUNTIME}" | tee -a "${run_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: ${KB_END_TIME}" | tee -a "${run_log_file}"
   ./collect-data.sh ${data_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Performing Cleanup" | tee -a "${run_log_file}"
+  export CLEANUP_CRDS=false
+  KB_START_CLEAN_TIME=$(date +%s)
+  time kube-burner-ocp --check-health=false --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
+  kb_rc=$?
+  echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner cleanup, RC: ${kb_rc}" | tee -a "${run_log_file}"
+  KB_END_CLEAN_TIME=$(date +%s)
+  KB_CLEAN_TIME=$(($KB_END_CLEAN_TIME - $KB_START_CLEAN_TIME))
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Clean Time (Seconds) : ${KB_CLEAN_TIME}" | tee -a "${run_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"

@@ -1,12 +1,6 @@
 ---
 global:
   gc: false
-  measurements:
-  # - name: podLatency
-  #   thresholds:
-  #   - conditionType: Ready
-  #     metric: P99
-  #     threshold: 2m0s
 metricsEndpoints:
 {{if .ES_SERVER}}
 - metrics: [hcp-workload/metrics-profile/metrics.yml, hcp-workload/metrics-profile/metrics-report.yml]

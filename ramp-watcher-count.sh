@@ -52,7 +52,7 @@ export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 watchers_counts=()
 
 # Range of Watcher Replicas
-watchers_counts+=("8" "12" "16")
+watchers_counts+=("2" "4" "6" "8" "10" "12")
 
 test_dir="results/${ts}-watchers"
 run_log_file="${test_dir}/run.log"
