@@ -11,6 +11,34 @@ if [[ -n "$3" ]]; then
   kb_end_time=$3
 fi
 
+# Dump ENV Vars used for Test Config
+echo "ITERATIONS=${ITERATIONS}" >> ${data_dir}/test.vars
+echo "JOB_PAUSE_TIME=${JOB_PAUSE_TIME}" >> ${data_dir}/test.vars
+echo "QPS=${QPS}" >> ${data_dir}/test.vars
+echo "BURST=${BURST}" >> ${data_dir}/test.vars
+
+echo "CRDS=${CRDS}" >> ${data_dir}/test.vars
+echo "CRS=${CRS}" >> ${data_dir}/test.vars
+echo "CR_SIZE=${CR_SIZE}" >> ${data_dir}/test.vars
+echo "SERVER_DEPLOYMENTS=${SERVER_DEPLOYMENTS}" >> ${data_dir}/test.vars
+echo "CLIENT_DEPLOYMENTS=${CLIENT_DEPLOYMENTS}" >> ${data_dir}/test.vars
+echo "CONFIGMAPS=${CONFIGMAPS}" >> ${data_dir}/test.vars
+echo "CM_KEY_COUNT=${CM_KEY_COUNT}" >> ${data_dir}/test.vars
+echo "CM_VALUE_SIZE=${CM_VALUE_SIZE}" >> ${data_dir}/test.vars
+echo "SECRETS=${SECRETS}" >> ${data_dir}/test.vars
+echo "SECRET_KEY_COUNT=${SECRET_KEY_COUNT}" >> ${data_dir}/test.vars
+echo "SECRET_VALUE_SIZE=${SECRET_VALUE_SIZE}" >> ${data_dir}/test.vars
+echo "SERVICES=${SERVICES}" >> ${data_dir}/test.vars
+echo "POD_COUNT=${POD_COUNT}" >> ${data_dir}/test.vars
+echo "CONTAINER_COUNT=${CONTAINER_COUNT}" >> ${data_dir}/test.vars
+echo "LABEL_COUNT=${LABEL_COUNT}" >> ${data_dir}/test.vars
+echo "ENV_ADD_VAR_COUNT=${ENV_ADD_VAR_COUNT}" >> ${data_dir}/test.vars
+echo "ENV_ADD_VAR_SIZE=${ENV_ADD_VAR_SIZE}" >> ${data_dir}/test.vars
+
+echo "WATCHERS=${WATCHERS}" >> ${data_dir}/test.vars
+echo "WATCHER_POD_REPLICAS=${WATCHER_POD_REPLICAS}" >> ${data_dir}/test.vars
+echo "WATCHER_CONTAINER_COUNT=${WATCHER_CONTAINER_COUNT}" >> ${data_dir}/test.vars
+
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting MC Data"
 
 oc --kubeconfig ${MC_KUBECONFIG} get clusterversion > ${data_dir}/mc.clusterversion
