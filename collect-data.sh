@@ -79,8 +79,11 @@ oc --kubeconfig ${HC_KUBECONFIG} get po -n hcp-workload-0 -o yaml > ${data_dir}/
 oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide > ${data_dir}/hc.crds
 
 # Get the HCP CRs and count of CRs
-oc --kubeconfig ${HC_KUBECONFIG} api-resources | grep hcp | awk '{print $1}' | xargs -I % oc --kubeconfig ${HC_KUBECONFIG} get % -A --no-headers 2>/dev/null > ${data_dir}/hc.hcp.crs
-cat ${data_dir}/hc.hcp.crs | wc -l > ${data_dir}/hc.hcp.crs.count
+# On a broken cluster this can take too long
+# oc --kubeconfig ${HC_KUBECONFIG} api-resources | grep hcp | awk '{print $1}' | xargs -I % oc --kubeconfig ${HC_KUBECONFIG} get % -A --no-headers 2>/dev/null > ${data_dir}/hc.hcp.crs
+# cat ${data_dir}/hc.hcp.crs | wc -l > ${data_dir}/hc.hcp.crs.count
+oc --kubeconfig ${HC_KUBECONFIG} get hcpworkloads0 -A --no-headers > ${data_dir}/hc.hcpworkloads0
+cat ${data_dir}/hc.hcpworkloads0 | wc -l > ${data_dir}/hc.hcpworkloads0.count
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Finished Data Collection"
 
