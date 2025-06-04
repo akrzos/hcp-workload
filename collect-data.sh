@@ -69,22 +69,22 @@ oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd -o yaml > ${data
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HC Data"
 
-oc --kubeconfig ${HC_KUBECONFIG} get clusterversion > ${data_dir}/hc.clusterversion
-oc --kubeconfig ${HC_KUBECONFIG} get clusteroperators > ${data_dir}/hc.clusteroperators
-oc --kubeconfig ${HC_KUBECONFIG} get no -A > ${data_dir}/hc.nodes
+oc --kubeconfig ${HC_KUBECONFIG} get clusterversion 2>&1 > ${data_dir}/hc.clusterversion
+oc --kubeconfig ${HC_KUBECONFIG} get clusteroperators 2>&1 > ${data_dir}/hc.clusteroperators
+oc --kubeconfig ${HC_KUBECONFIG} get no -A 2>&1 > ${data_dir}/hc.nodes
 
-oc --kubeconfig ${HC_KUBECONFIG} get ns > ${data_dir}/hc.namespaces
-oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide > ${data_dir}/hc.pods
+oc --kubeconfig ${HC_KUBECONFIG} get ns 2>&1 > ${data_dir}/hc.namespaces
+oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide 2>&1 > ${data_dir}/hc.pods
 
-oc --kubeconfig ${HC_KUBECONFIG} get po -n hcp-workload-0 -o yaml > ${data_dir}/hc.pods.hcp-workload-0.yaml
+oc --kubeconfig ${HC_KUBECONFIG} get po -n hcp-workload-0 -o yaml 2>&1 > ${data_dir}/hc.pods.hcp-workload-0.yaml
 
-oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide > ${data_dir}/hc.crds
+oc --kubeconfig ${HC_KUBECONFIG} get crds -A -o wide 2>&1 > ${data_dir}/hc.crds
 
 # Get the HCP CRs and count of CRs
 # On a broken cluster this can take too long
 # oc --kubeconfig ${HC_KUBECONFIG} api-resources | grep hcp | awk '{print $1}' | xargs -I % oc --kubeconfig ${HC_KUBECONFIG} get % -A --no-headers 2>/dev/null > ${data_dir}/hc.hcp.crs
 # cat ${data_dir}/hc.hcp.crs | wc -l > ${data_dir}/hc.hcp.crs.count
-oc --kubeconfig ${HC_KUBECONFIG} get hcpworkloads0 -A --no-headers > ${data_dir}/hc.hcpworkloads0
+oc --kubeconfig ${HC_KUBECONFIG} get hcpworkloads0 -A --no-headers 2>&1 > ${data_dir}/hc.hcpworkloads0
 cat ${data_dir}/hc.hcpworkloads0 | wc -l > ${data_dir}/hc.hcpworkloads0.count
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Finished Data Collection"
