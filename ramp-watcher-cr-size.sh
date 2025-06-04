@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Ramp count of watchers in the cluster
-# 250 CRs (1024KiB/1MiB Ea) * 10 Namespaces will bring HCP down with 40 watcher pods with 2 watcher containers each (80 total containers/watchers)
-# 200 CRs (1024KiB/1MiB Ea) * 10 Namespaces will bring HCP down with 60 watcher pods with 2 watcher containers each (120 total containers/watchers)
-# 125 CRs (1024KiB/1MiB Ea) * 10 Namespaces will bring HCP down with 120 watcher pods with 2 watcher containers each (240 total containers/watchers)
+# Ramp size of crs for watchers in the cluster
+# 200 CRs (768KiB Ea) * 10 Namespaces will bring HCP down with 80 watcher pods with 2 watcher containers each (160 total containers/watchers)
+# 200 CRs (512KiB Ea) * 10 Namespaces will bring HCP down with 120 watcher pods with 2 watcher containers each (240 total containers/watchers)
 # set -e
 set -o pipefail
 
@@ -29,8 +28,8 @@ export BURST=100
 
 # Objects Config
 export CRDS=1
-export CRS=250
-export CR_SIZE=1048576
+export CRS=200
+# export CR_SIZE=0 # (Ramped in a variable below)
 export SERVER_DEPLOYMENTS=1
 export CLIENT_DEPLOYMENTS=1
 export CONFIGMAPS=1
@@ -47,27 +46,27 @@ export ENV_ADD_VAR_COUNT=2
 export ENV_ADD_VAR_SIZE=1024
 
 # Watcher deployment configuration
-# export WATCHERS=1 # (Ramped in a variable below)
+export WATCHERS=8
 export WATCHER_POD_REPLICAS=1
 export WATCHER_CONTAINER_COUNT=2
 export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 
-watchers_counts=()
+cr_sizes=()
 
-# Range of Watcher Replicas
-watchers_counts+=("2" "4" "6" "8" "10" "12")
+# Range of CR Sizes
+cr_sizes+=("65536" "131072" "262144" "524288" "786432" "1048576")
 
-test_dir="results/${ts}-watchers"
+test_dir="results/${ts}-watchers-cr-size"
 run_log_file="${test_dir}/run.log"
-for i in "${!watchers_counts[@]}"; do
-  export WATCHERS=${watchers_counts[$i]}
-  export METRICS_DIRECTORY="${test_dir}/${i}-${WATCHERS}"
+for i in "${!cr_sizes[@]}"; do
+  export CR_SIZE=${cr_sizes[$i]}
+  export METRICS_DIRECTORY="${test_dir}/${i}-${CR_SIZE}"
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
   kb_clean_log_file="${METRICS_DIRECTORY}-kb-clean.log"
   data_dir="${METRICS_DIRECTORY}-data"
   mkdir -p "${METRICS_DIRECTORY}"
   mkdir -p "${data_dir}"
-  echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, WATCHERS: ${WATCHERS}" | tee -a "${run_log_file}"
+  echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CR_SIZE: ${CR_SIZE}" | tee -a "${run_log_file}"
   KB_START_TIME=$(date +%s)
   echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
   time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml 2>&1 | tee ${kb_log_file}
