@@ -71,7 +71,8 @@ echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HC Data"
 
 oc --kubeconfig ${HC_KUBECONFIG} get clusterversion 2>&1 > ${data_dir}/hc.clusterversion
 oc --kubeconfig ${HC_KUBECONFIG} get clusteroperators 2>&1 > ${data_dir}/hc.clusteroperators
-oc --kubeconfig ${HC_KUBECONFIG} get no -A 2>&1 > ${data_dir}/hc.nodes
+oc --kubeconfig ${HC_KUBECONFIG} get no 2>&1 > ${data_dir}/hc.nodes
+oc --kubeconfig ${HC_KUBECONFIG} describe no 2>&1 > ${data_dir}/hc.nodes.describe
 
 oc --kubeconfig ${HC_KUBECONFIG} get ns 2>&1 > ${data_dir}/hc.namespaces
 oc --kubeconfig ${HC_KUBECONFIG} get po -A -o wide 2>&1 > ${data_dir}/hc.pods
