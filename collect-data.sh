@@ -61,8 +61,10 @@ oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -o wide > ${data_dir}/hcp.po
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -o json | jq -r '.items[] | .metadata.name as $podname | .status.containerStatuses[] | [$podname, .restartCount, .name ] | @tsv' | column -t > ${data_dir}/hcp.containers.restarts
 
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver -o wide > ${data_dir}/hcp.pods.kas
+oc --kubeconfig ${MC_KUBECONFIG} describe po -n ${HC_NS} -l app=kube-apiserver > ${data_dir}/hcp.pods.kas.describe
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=kube-apiserver -o yaml > ${data_dir}/hcp.pods.kas.yml
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd -o wide > ${data_dir}/hcp.pods.etcd
+oc --kubeconfig ${MC_KUBECONFIG} describe po -n ${HC_NS} -l app=etcd > ${data_dir}/hcp.pods.etcd.describe
 oc --kubeconfig ${MC_KUBECONFIG} get po -n ${HC_NS} -l app=etcd -o yaml > ${data_dir}/hcp.pods.etcd.yml
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HC Data"
