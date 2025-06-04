@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Ramp count of watchers in the cluster
+# 250 CRs (1024KiB/1MiB Ea) will bring HCP down with 40 watcher pods with 2 watcher containers each (80 total containers/watchers)
+# 200 CRs (1024KiB/1MiB Ea) will bring HCP down with 60 watcher pods with 2 watcher containers each (120 total containers/watchers)
+# 125 CRs (1024KiB/1MiB Ea) will bring HCP down with 120 watcher pods with 2 watcher containers each (240 total containers/watchers)
 # set -e
 set -o pipefail
 
