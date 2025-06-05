@@ -35,8 +35,8 @@ spec:
           done
         resources:
           requests:
-            memory: "5Mi"
-            cpu: "5m"
+            memory: "35Mi"
+            cpu: "2m"
         volumeMounts:
         - name: secret-kc
           mountPath: /opt
