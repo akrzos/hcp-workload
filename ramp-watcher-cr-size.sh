@@ -2,6 +2,7 @@
 # Ramp size of crs for watchers in the cluster
 # 200 CRs (768KiB Ea) * 10 Namespaces will bring HCP down with 80 watcher pods with 2 watcher containers each (160 total containers/watchers)
 # 200 CRs (512KiB Ea) * 10 Namespaces will bring HCP down with 120 watcher pods with 2 watcher containers each (240 total containers/watchers)
+# 200-800 CRs (128KiB-256KiB Ea) * 10 Namespaces may bring HCP down with 200 watcher pods with 2 watcher containers each (240 total containers/watchers)
 # set -e
 set -o pipefail
 
@@ -54,7 +55,7 @@ export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 cr_sizes=()
 
 # Range of CR Sizes
-cr_sizes+=("65536" "131072" "262144" "524288" "786432" "1048576")
+cr_sizes+=("8192" "16384"  "32768" "65536" "131072" "262144" "524288" "786432" "1048576")
 
 test_dir="results/${ts}-watchers-cr-size"
 run_log_file="${test_dir}/run.log"
