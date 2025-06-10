@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Ramp count of ConfigMaps on a cluster
+# 50,000 CMs (Each with 8 keys of 1KiB) * 10 Namespaces will trigger KAS OOM on m5.xlarge serving nodes
+# 30,000 CMs (Each with 16 keys of 1KiB) * 10 Namespaces will trigger KAS OOM on m5.xlarge serving nodes
 # set -e
 set -o pipefail
 
@@ -9,7 +11,7 @@ ts="$(date -u +%Y%m%d-%H%M%S)"
 # checkhealth=true
 checkhealth=false
 
-timeout=4h
+timeout=2h
 
 # Workload Job Config
 export ITERATIONS=10
@@ -21,7 +23,7 @@ if [ -z ${ES_SERVER} ]; then export ES_SERVER=""; fi
 if [ -z ${ES_INDEX} ]; then export ES_INDEX=""; fi
 export LOCAL_INDEXING=true
 export JOB_PAUSE_TIME="3m"
-export QPS=50
+export QPS=250
 export BURST=100
 
 # Objects Config
@@ -31,7 +33,7 @@ export CR_SIZE=0
 export SERVER_DEPLOYMENTS=0
 export CLIENT_DEPLOYMENTS=0
 # export CONFIGMAPS=1 # (Ramped in a variable below)
-export CM_KEY_COUNT=1
+export CM_KEY_COUNT=16
 export CM_VALUE_SIZE=1024
 export SECRETS=0
 export SECRET_KEY_COUNT=0
@@ -52,7 +54,8 @@ export SECRET_KC=$(cat ${HC_KUBECONFIG} | base64 -w 0)
 cm_counts=()
 
 # Range of Configmap counts
-cm_counts+=("1" "10" "100" "1000" "10000" "100000")
+# cm_counts+=("10000" "20000" "30000" "40000" "50000" "60000" "70000" "80000" "90000" "100000")
+cm_counts+=("10000" "20000" "30000" "40000" "50000")
 
 test_dir="results/${ts}-cm-count"
 run_log_file="${test_dir}/run.log"
