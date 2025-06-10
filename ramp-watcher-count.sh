@@ -64,9 +64,9 @@ for i in "${!watchers_counts[@]}"; do
   export METRICS_DIRECTORY="${test_dir}/${i}-${WATCHERS}"
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
   kb_clean_log_file="${METRICS_DIRECTORY}-kb-clean.log"
-  data_dir="${METRICS_DIRECTORY}-data"
+  data_post_run_dir="${METRICS_DIRECTORY}-post-run-data"
   mkdir -p "${METRICS_DIRECTORY}"
-  mkdir -p "${data_dir}"
+  mkdir -p "${data_post_run_dir}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, WATCHERS: ${WATCHERS}" | tee -a "${run_log_file}"
   KB_START_TIME=$(date +%s)
   echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
@@ -78,7 +78,7 @@ for i in "${!watchers_counts[@]}"; do
   KB_RUNTIME=$(($KB_END_TIME - $KB_START_TIME))
   echo "$(date -u +%Y%m%d-%H%M%S) :: Test Time (Seconds) : ${KB_RUNTIME}" | tee -a "${run_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: ${KB_END_TIME}" | tee -a "${run_log_file}"
-  ./collect-data.sh ${data_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
+  ./collect-post-run-data.sh ${data_post_run_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
   echo "$(date -u +%Y%m%d-%H%M%S) :: Performing Cleanup" | tee -a "${run_log_file}"
   export CLEANUP_CRDS=false
   KB_START_CLEAN_TIME=$(date +%s)

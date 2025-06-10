@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Collect diagnostic data off MC, HCP, and HC
+# Collect diagnostic data off MC, HCP, and HC after kube-burner run
 # set -e
 # set -o pipefail
 
