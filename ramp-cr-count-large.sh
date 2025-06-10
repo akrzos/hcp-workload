@@ -101,7 +101,7 @@ for i in "${!cr_counts[@]}"; do
   KB_END_CLEAN_TIME=$(date +%s)
   KB_CLEAN_TIME=$(($KB_END_CLEAN_TIME - $KB_START_CLEAN_TIME))
   echo "$(date -u +%Y%m%d-%H%M%S) :: Clean Time (Seconds) : ${KB_CLEAN_TIME}" | tee -a "${run_log_file}"
-  ./collect-post-clean-data.sh ${data_post_clean_dir}
+  ./collect-post-clean-data.sh ${data_post_clean_dir} | tee -a "${run_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"
