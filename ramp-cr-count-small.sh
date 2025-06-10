@@ -81,8 +81,8 @@ for i in "${!cr_counts[@]}"; do
   kb_log_file="${METRICS_DIRECTORY}-kb.log"
   kb_clean_log_file="${METRICS_DIRECTORY}-kb-clean.log"
   data_post_run_dir="${METRICS_DIRECTORY}-post-run-data"
-  mkdir -p "${METRICS_DIRECTORY}"
-  mkdir -p "${data_post_run_dir}"
+  data_post_clean_dir="${METRICS_DIRECTORY}-post-clean-data"
+  mkdir -p "${METRICS_DIRECTORY}" "${data_post_run_dir}" "${data_post_clean_dir}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, CRDs: ${CRDS}, CRs: ${CRS}, CR Size: ${CR_SIZE}" | tee -a "${run_log_file}"
   KB_START_TIME=$(date +%s)
   echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
@@ -104,6 +104,7 @@ for i in "${!cr_counts[@]}"; do
   KB_END_CLEAN_TIME=$(date +%s)
   KB_CLEAN_TIME=$(($KB_END_CLEAN_TIME - $KB_START_CLEAN_TIME))
   echo "$(date -u +%Y%m%d-%H%M%S) :: Clean Time (Seconds) : ${KB_CLEAN_TIME}" | tee -a "${run_log_file}"
+  ./collect-post-clean-data.sh ${data_post_clean_dir}
   echo "$(date -u +%Y%m%d-%H%M%S) :: Sleep 120s between tests" | tee -a "${run_log_file}"
   sleep 120
   echo "-----------------------------------------"  | tee -a "${run_log_file}"
