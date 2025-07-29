@@ -12,3 +12,6 @@ oc label no vm00009 node-role.kubernetes.io/workload6=
 
 # Create the vpa-stress namespaces and deployments
 oc create -f deployments/
+
+# Apply the VerticalPodAutoscalerController changes
+oc apply -f vpac.yml
