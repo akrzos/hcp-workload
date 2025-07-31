@@ -28,26 +28,23 @@ logger = logging.getLogger("vpa-latency")
 
 
 class VPAMonitor(Thread):
-  def __init__(self, namespace, vpa_name, monitor_data, csv_file, poll_interval):
+  def __init__(self, namespace, vpa_name, monitor_data, polls_csv, transitions_csv, poll_interval):
     super(VPAMonitor, self).__init__()
     self.namespace = namespace
     self.vpa_name = vpa_name
     self.monitor_data = monitor_data
-    self.csv_file = csv_file
+    self.polls_csv = polls_csv
+    self.transitions_csv = transitions_csv
     self.poll_interval = poll_interval
     self.signal = True
 
   def _real_run(self):
     logger.info("Starting VPA Monitor")
 
-    # Write CSV Header
-    # with open(self.csv_file, "w") as csv_file:
-    #   csv_file.write("date,\n")
-
     while self.signal:
       start_poll_time = time.time()
 
-      logger.info("Polling for VPA recommendations")
+      logger.debug("Polling for VPA recommendations")
       oc_cmd = ["oc", "get", "vpa", "-n", self.namespace, self.vpa_name, "-o", "json"]
       rc, output = command(oc_cmd, retries=3, no_log=True)
       if rc != 0:
@@ -63,7 +60,6 @@ class VPAMonitor(Thread):
       recommendations = {}
       if "status" in vpa_data:
         if "recommendation" in vpa_data["status"] and "containerRecommendations" in vpa_data["status"]["recommendation"]:
-          logger.info("Recommendation found")
           for container in vpa_data["status"]["recommendation"]["containerRecommendations"]:
             if container["containerName"] == "stress":
               logger.debug("Stress Container recommendation found")
@@ -75,21 +71,30 @@ class VPAMonitor(Thread):
         logger.warning("Missing status fields in VPA data")
 
       if recommendations:
-        logger.info("Stress Container recommendation found :: {}".format(recommendations["target"]))
+        sample = {
+          "timestamp": datetime.utcfromtimestamp(start_poll_time).strftime('%Y-%m-%dT%H:%M:%SZ'),
+          "cpu.lowerBound": recommendations["lowerBound"]["cpu"],
+          "cpu.target": recommendations["target"]["cpu"],
+          "cpu.uncappedTarget": recommendations["uncappedTarget"]["cpu"],
+          "cpu.upperBound": recommendations["upperBound"]["cpu"],
+          "memory.lowerBound": recommendations["lowerBound"]["memory"],
+          "memory.target": recommendations["target"]["memory"],
+          "memory.uncappedTarget": recommendations["uncappedTarget"]["memory"],
+          "memory.upperBound": recommendations["upperBound"]["memory"]
+        }
+        self.monitor_data["polls"].append(sample)
 
-      # Set monitor data
-      # Parse mointor data
-      # Set values for parsed data
+        # Write csv data
+        with open(self.polls_csv, "a") as csv_file:
+          csv_file.write("{},{},{},{},{},{},{},{},{}\n".format(
+              sample["timestamp"],sample["cpu.lowerBound"],sample["cpu.target"],sample["cpu.uncappedTarget"],sample["cpu.upperBound"],sample["memory.lowerBound"],sample["memory.target"],sample["memory.uncappedTarget"],sample["memory.upperBound"]
+          ))
 
-      # Write csv data
-      # with open(self.csv_file, "a") as csv_file:
-      #   csv_file.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(
-      #       datetime.utcfromtimestamp(start_poll_time).strftime('%Y-%m-%dT%H:%M:%SZ')
-      #   ))
+        # TODO Calculate if a transition occured
+        # TODO Determine if we have transition due to api request
 
-      # Debug print output
-      # logger.debug("Applied/Committed Clusters: {}".format(self.monitor_data["cluster_applied_committed"]))
-
+      else:
+        logger.warning("Specfic 'stress' container recommendation missing")
 
       end_poll_time = time.time()
       poll_time = round(end_poll_time - start_poll_time, 1)

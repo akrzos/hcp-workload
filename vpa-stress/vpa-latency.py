@@ -19,14 +19,14 @@
 
 # TODO:
 # * Capture Key Metrics
-#   * API Request Time Stamp
-#   * All 4 recommendation metrics (lowerBound, target, uncappedTarget, upperBound) for cpu and memory
-#   * When a recommendation changes capture in monitor data
-#     * Determine if recommendation change was scale up or scale down, also relative latency to the API request time stamp and from start time stamp
+# * Determine transition times
+# * Determine transition vs API Request Time
+# * Determine if recommendation change was scale up or scale down and latency
 # * Output a report card and csv file
 
 
 import argparse
+from datetime import datetime
 import json
 from libs.command import command
 from libs.vpa_monitor import VPAMonitor
@@ -44,11 +44,21 @@ logging.Formatter.converter = time.gmtime
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def stress_api_request(api_route, stress_memory, stress_timeout):
+def stress_api_request(api_route, stress_memory, stress_timeout, monitor_data):
+  request_start_time = time.time()
   endpoint = "https://{}/stress?memory={}G&timeout={}".format(api_route, stress_memory, stress_timeout)
   logger.info("Requesting stress api :: {}".format(endpoint))
   response = requests.get(endpoint, verify=False)
-  logger.info("Stress API response code: {}".format(response.status_code))
+  request = {
+    "timestamp": datetime.utcfromtimestamp(request_start_time).strftime('%Y-%m-%dT%H:%M:%SZ'),
+    "endpoint": endpoint,
+    "memory": stress_memory,
+    "timeout": stress_timeout,
+    "response": response.status_code
+  }
+  monitor_data["api_requests"].append(request)
+  request_time = round(time.time() - request_start_time, 3)
+  logger.info("Stress API response code: {}, Request Time: {}".format(response.status_code, request_time))
 
 
 def main():
@@ -138,14 +148,27 @@ def main():
       api_route = route_data["spec"]["host"]
       logger.info("Route is {}".format(api_route))
 
-  # TODO Initialize the csv file and monitor data structure
-  monitor_data_csv_file = "test.csv"
-  monitor_data = {}
+  # TODO Initialize the csv file locations
+  polls_csv_file = "polls.csv"
+  transitions_csv_file = "transitions.csv"
+  monitor_data = {
+    "api_requests": [],
+    "polls": [],
+    "recommendation_transitions": []
+  }
+
+  # Write CSV Header
+  with open(polls_csv_file, "w") as csv_file:
+    csv_file.write("timestamp,cpu.lowerBound,cpu.target,cpu.uncappedTarget,cpu.upperBound,memory.lowerBound,memory.target,memory.uncappedTarget,memory.upperBound\n")
+
+  logger.info("###############################################################################")
+  logger.info("Storing raw polling data in {}".format(polls_csv_file))
+  logger.info("Storing transition data in {}".format(transitions_csv_file))
 
   logger.info("###############################################################################")
   logger.info("Starting measurement phase")
 
-  monitor_thread = VPAMonitor(cliargs.namespace, cliargs.vpa_name, monitor_data, monitor_data_csv_file, cliargs.poll_interval)
+  monitor_thread = VPAMonitor(cliargs.namespace, cliargs.vpa_name, monitor_data, polls_csv_file, transitions_csv_file, cliargs.poll_interval)
   monitor_thread.start()
 
   start_time = time.time()
@@ -162,7 +185,7 @@ def main():
     current_time = time.time()
     if not initial_api_request_completed and (current_time >= expected_api_request_time):
       logger.info("Completed initial api request phase")
-      stress_api_request(api_route, cliargs.stress_memory, cliargs.stress_timeout)
+      stress_api_request(api_route, cliargs.stress_memory, cliargs.stress_timeout, monitor_data)
       initial_api_request_completed = True
     if current_time >= expected_end_time:
       logger.info("Completed measurement phase")
@@ -178,7 +201,7 @@ def main():
       wait_logger = 0
 
   # Test loop completed, signal thread to terminate
-  logger.info("Stopping VPA Monitor thread may take up to: {}".format(cliargs.poll_interval))
+  logger.info("Stopping VPA Monitor thread may take up to: {}s".format(cliargs.poll_interval))
   monitor_thread.signal = False
   monitor_thread.join()
 
@@ -188,6 +211,20 @@ def main():
   logger.info("###############################################################################")
 
   logger.info("Display report on monitor data")
+  logger.info("API Requests")
+  for item in monitor_data["api_requests"]:
+    logger.info(item)
+
+  logger.info("###############################################################################")
+  logger.info("Polls")
+  for item in monitor_data["polls"]:
+    logger.info(item)
+
+  logger.info("###############################################################################")
+  logger.info("Recommendation Transitions")
+  for item in monitor_data["recommendation_transitions"]:
+    logger.info(item)
+
 
 if __name__ == "__main__":
   sys.exit(main())
