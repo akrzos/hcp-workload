@@ -6,9 +6,6 @@ set -o pipefail
 # Start Timestamp
 ts="$(date -u +%Y%m%d-%H%M%S)"
 
-# checkhealth=true
-checkhealth=false
-
 timeout=30m
 
 # Workload Job Config
@@ -52,6 +49,6 @@ for i in "${!env_var_sizes[@]}"; do
   echo "Running Test: $i, Env Var Size: ${ENV_ADD_VAR_SIZE}"
   export METRICS_DIRECTORY="results/${ts}-ramp-env-size-${i}-${ENV_ADD_VAR_SIZE}"
   log_file="${METRICS_DIRECTORY}.log"
-  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml 2>&1 | tee ${log_file}
-  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml --log-level debug 2>&1 | tee ${log_file}
+  time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml 2>&1 | tee ${log_file}
+  # time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-workload.yml --log-level debug 2>&1 | tee ${log_file}
 done

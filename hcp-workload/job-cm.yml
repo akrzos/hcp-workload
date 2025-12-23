@@ -15,7 +15,7 @@ metricsEndpoints:
   token: {{.PROM_TOKEN}}
 {{end}}
 {{end}}
-{{if eq .LOCAL_INDEXING "true"}}
+{{if .LOCAL_INDEXING }}
 - metrics: [hcp-workload/metrics-profile/metrics.yml, hcp-workload/metrics-profile/metrics-report.yml]
   alerts: [hcp-workload/alerts.yml]
   indexer:
@@ -47,12 +47,6 @@ jobs:
     pod-security.kubernetes.io/audit: privileged
     pod-security.kubernetes.io/warn: privileged
     hcp-workload: true
-  churn: false
-  churnCycles: 100
-  churnPercent: 10
-  churnDuration: 5m
-  churnDelay: 0s
-  churnDeletionStrategy: default
   objects:
 
   - objectTemplate: hcp-workload/secret.yml

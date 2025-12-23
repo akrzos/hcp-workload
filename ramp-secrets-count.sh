@@ -9,9 +9,6 @@ set -o pipefail
 # Start Timestamp
 ts="$(date -u +%Y%m%d-%H%M%S)"
 
-# checkhealth=true
-checkhealth=false
-
 timeout=4h
 
 # Workload Job Config
@@ -71,8 +68,8 @@ for i in "${!secret_counts[@]}"; do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test: $i, SECRETS: ${SECRETS}" | tee -a "${run_log_file}"
   KB_START_TIME=$(date +%s)
   echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
-  time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-cm.yml 2>&1 | tee ${kb_log_file}
-  # time kube-burner-ocp --check-health=${checkhealth} --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-cm.yml --log-level debug 2>&1 | tee ${kb_log_file}
+  time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-cm.yml 2>&1 | tee ${kb_log_file}
+  # time kube-burner-ocp --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-cm.yml --log-level debug 2>&1 | tee ${kb_log_file}
   kb_rc=$?
   echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner, RC: ${kb_rc}" | tee -a "${run_log_file}"
   KB_END_TIME=$(date +%s)
@@ -83,7 +80,7 @@ for i in "${!secret_counts[@]}"; do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Performing Cleanup" | tee -a "${run_log_file}"
   export CLEANUP_CRDS=false
   KB_START_CLEAN_TIME=$(date +%s)
-  time kube-burner-ocp --check-health=false --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
+  time kube-burner-ocp --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
   kb_rc=$?
   echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner cleanup, RC: ${kb_rc}" | tee -a "${run_log_file}"
   KB_END_CLEAN_TIME=$(date +%s)
