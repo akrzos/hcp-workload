@@ -10,7 +10,8 @@ jobs:
   burst: 20
   objects:
   - kind: Namespace
-    labelSelector: {kube-burner-job: hcp-workload}
+    labelSelector:
+      kube-burner.io/job: hcp-workload
     apiVersion: v1
 {{if eq .CLEANUP_CRDS "true"}}
   - kind: CustomResourceDefinition
