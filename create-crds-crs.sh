@@ -6,9 +6,6 @@ set -o pipefail
 # Start Timestamp
 ts="$(date -u +%Y%m%d-%H%M%S)"
 
-# checkhealth=true
-checkhealth=false
-
 # Each Iteration creates a CRD (HcpWorkload$Iteration) starting from 0
 export CRDS=50
 
@@ -26,5 +23,5 @@ for i in $(seq 0 $CRDS); do
 done
 echo "$(date -u +%Y%m%d-%H%M%S) :: Completed adding ${ITERATIONS} CRDs and templated CRs" | tee -a ${log_file}
 
-time kube-burner-ocp --check-health=${checkhealth} --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml 2>&1 | tee ${log_file}
-# time kube-burner-ocp --check-health=${checkhealth} --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml --log-level debug 2>&1 | tee ${log_file}
+time kube-burner-ocp --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml 2>&1 | tee ${log_file}
+# time kube-burner-ocp --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml --log-level debug 2>&1 | tee ${log_file}
