@@ -21,7 +21,7 @@ for i in $(seq 0 $CRDS); do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Generating hcp-workload/cr/hcpworkload${i}.yml" | tee -a ${log_file}
   index=$i envsubst < hcp-workload/cr-hcpworkload.yml.tmpl > hcp-workload/cr/hcpworkload${i}.yml
 done
-echo "$(date -u +%Y%m%d-%H%M%S) :: Completed adding ${ITERATIONS} CRDs and templated CRs" | tee -a ${log_file}
+echo "$(date -u +%Y%m%d-%H%M%S) :: Completed templating ${CRDS} CR manifests" | tee -a ${log_file}
 
 time kube-burner-ocp --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml 2>&1 | tee ${log_file}
 # time kube-burner-ocp --qps ${QPS} --burst ${BURST} --enable-file-logging=False init -c hcp-workload/job-crd.yml --log-level debug 2>&1 | tee ${log_file}

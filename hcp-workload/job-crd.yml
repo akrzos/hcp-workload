@@ -7,7 +7,7 @@ jobs:
   jobType: create
   jobIterations: {{.CRDS}}
   namespacedIterations: false
-  cleanup: true
+  cleanup: false
   podWait: false
   qps: {{.QPS}}
   burst: {{.BURST}}
