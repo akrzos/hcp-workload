@@ -52,8 +52,15 @@ oc --kubeconfig ${MC_KUBECONFIG} get po -A -o wide > ${data_dir}/mc.pods
 
 oc --kubeconfig ${MC_KUBECONFIG} get hcp -A > ${data_dir}/mc.hcp
 oc --kubeconfig ${MC_KUBECONFIG} get hcp -A -o yaml > ${data_dir}/mc.hcp.yaml
+oc --kubeconfig ${MC_KUBECONFIG} get hc -A > ${data_dir}/mc.hc
+oc --kubeconfig ${MC_KUBECONFIG} get hc -A -o yaml > ${data_dir}/mc.hc.yaml
 oc --kubeconfig ${MC_KUBECONFIG} get nodepool -A > ${data_dir}/mc.nodepool
 oc --kubeconfig ${MC_KUBECONFIG} get nodepool -A -o yaml > ${data_dir}/mc.nodepool.yaml
+
+oc --kubeconfig ${MC_KUBECONFIG} get hc -A -o json | jq '.items[] | "\(.metadata.name) :: hosted-cluster-size :: \(.metadata.labels["hypershift.openshift.io/hosted-cluster-size"])"' > ${data_dir}/mc.hc.hosted-cluster-size
+oc --kubeconfig ${MC_KUBECONFIG} get hc -A -o json | jq '.items[] | "\(.metadata.name) :: recommended-cluster-size :: \(.metadata.annotations["hypershift.openshift.io/recommended-cluster-size"])"' > ${data_dir}/mc.hc.recommended-cluster-size
+
+oc --kubeconfig ${MC_KUBECONFIG} get no --no-headers -l hypershift.openshift.io/cluster=${HC_NS} > ${data_dir}/mc.hc.request-serving-nodes
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting HCP Data"
 
