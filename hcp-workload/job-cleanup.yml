@@ -11,7 +11,8 @@ jobs:
   objects:
   - kind: Namespace
     labelSelector:
-      kube-burner.io/job: hcp-workload
+      # kube-burner.io/job: hcp-workload
+      hcp-workload: true
     apiVersion: v1
 {{if eq .CLEANUP_CRDS "true"}}
   - kind: CustomResourceDefinition
