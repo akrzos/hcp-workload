@@ -32,6 +32,7 @@ export CR_SIZE=0
 export SERVER_DEPLOYMENTS=0
 export CLIENT_DEPLOYMENTS=0
 # export CONFIGMAPS=1 # (Ramped in a variable below)
+export CM_PREFIX=server
 export CM_KEY_COUNT=2
 export CM_VALUE_SIZE=1024
 export SECRETS=0

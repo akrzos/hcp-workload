@@ -36,6 +36,7 @@ jobs:
   podWait: false
   waitWhenFinished: false
   verifyObjects: false
+  cleanup: false
   jobPause: {{.JOB_PAUSE_TIME}}
   qps: {{.QPS}}
   burst: {{.BURST}}
@@ -58,6 +59,6 @@ jobs:
   - objectTemplate: hcp-workload/configmap.yml
     replicas: {{.CONFIGMAPS}}
     inputVars:
-      cmPrefix: server
+      cmPrefix: {{.CM_PREFIX}}
       cmKeyCount: {{.CM_KEY_COUNT}}
       cmValueSize: {{.CM_VALUE_SIZE}}
