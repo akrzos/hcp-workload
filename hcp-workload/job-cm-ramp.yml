@@ -28,17 +28,19 @@ metricsEndpoints:
 {{end}}
 
 jobs:
-- name: hcp-workload
+{{$data := .}}
+{{range until (.STEPS | int)}}
+- name: ramp-cm-{{.}}
   jobType: create
-  jobIterations: {{.ITERATIONS}}
+  jobIterations: {{$data.ITERATIONS}}
   namespace: hcp-workload
   namespacedIterations: true
   podWait: false
   waitWhenFinished: false
   verifyObjects: false
-  jobPause: {{.JOB_PAUSE_TIME}}
-  qps: {{.QPS}}
-  burst: {{.BURST}}
+  jobPause: {{$data.JOB_PAUSE_TIME}}
+  qps: {{$data.QPS}}
+  burst: {{$data.BURST}}
   preLoadImages: false
   preLoadPeriod: 1m
   namespaceLabels:
@@ -48,16 +50,10 @@ jobs:
     pod-security.kubernetes.io/warn: privileged
     hcp-workload: true
   objects:
-
-  - objectTemplate: hcp-workload/secret.yml
-    replicas: {{.SECRETS}}
-    inputVars:
-      secretKeyCount: {{.SECRET_KEY_COUNT}}
-      secretValueSize: {{.SECRET_VALUE_SIZE}}
-
   - objectTemplate: hcp-workload/configmap.yml
-    replicas: {{.CONFIGMAPS}}
+    replicas: {{$data.CONFIGMAPS}}
     inputVars:
-      cmPrefix: server
-      cmKeyCount: {{.CM_KEY_COUNT}}
-      cmValueSize: {{.CM_VALUE_SIZE}}
+      cmPrefix: ramp{{.}}
+      cmKeyCount: {{$data.CM_KEY_COUNT}}
+      cmValueSize: {{$data.CM_VALUE_SIZE}}
+{{end}}

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: server-{{.Iteration}}-{{.Replica}}
+  name: {{.cmPrefix}}-{{.Iteration}}-{{.Replica}}
 data:
   {{$data := .}}
   {{range until .cmKeyCount}}

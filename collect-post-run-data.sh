@@ -18,6 +18,7 @@ echo "ITERATIONS=${ITERATIONS}" >> ${data_dir}/test.vars
 echo "JOB_PAUSE_TIME=${JOB_PAUSE_TIME}" >> ${data_dir}/test.vars
 echo "QPS=${QPS}" >> ${data_dir}/test.vars
 echo "BURST=${BURST}" >> ${data_dir}/test.vars
+echo "STEPS=${STEPS}" >> ${data_dir}/test.vars
 
 echo "CRDS=${CRDS}" >> ${data_dir}/test.vars
 echo "CRS=${CRS}" >> ${data_dir}/test.vars

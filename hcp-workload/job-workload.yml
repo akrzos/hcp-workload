@@ -67,6 +67,7 @@ jobs:
   - objectTemplate: hcp-workload/configmap.yml
     replicas: {{mul .SERVER_DEPLOYMENTS .CONFIGMAPS}}
     inputVars:
+      cmPrefix: server
       cmKeyCount: {{.CM_KEY_COUNT}}
       cmValueSize: {{.CM_VALUE_SIZE}}
 
