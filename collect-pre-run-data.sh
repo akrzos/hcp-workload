@@ -7,6 +7,10 @@ data_dir=$1
 
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting Pre Run Diagnostic Data"
 
+END_TIME=$(date +%s)
+START_TIME=$((END_TIME - 600))
+./scripts/metrics.sh ${START_TIME} ${END_TIME}
+
 echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting MC Data"
 
 oc --kubeconfig ${MC_KUBECONFIG} get clusterversion > ${data_dir}/mc.clusterversion

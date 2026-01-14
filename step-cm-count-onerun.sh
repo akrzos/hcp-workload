@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ramp count of ConfigMaps on a cluster using a single run of kube-burner-ocp
+# Step count of ConfigMaps on a cluster using one run of kube-burner-ocp
 # set -e
 set -o pipefail
 
@@ -28,14 +28,17 @@ export CONFIGMAPS=10000
 export CM_KEY_COUNT=2
 export CM_VALUE_SIZE=1024
 
-test_dir="results/${ts}-cm-count"
+test_dir="results/${ts}-cm-count-onerun"
+data_pre_run_dir="${test_dir}/pre-run-data"
 run_log_file="${test_dir}/run.log"
+mkdir -p "${test_dir}" "${data_pre_run_dir}"
+./collect-pre-run-data.sh ${data_pre_run_dir} | tee -a ${run_log_file}
 
 export METRICS_DIRECTORY="${test_dir}/metrics"
 kb_log_file="${test_dir}/create-kb.log"
 data_post_run_dir="${test_dir}/post-run-data"
 mkdir -p "${METRICS_DIRECTORY}" "${data_post_run_dir}"
-echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test Ramped CM Count One Run" | tee -a "${run_log_file}"
+echo "$(date -u +%Y%m%d-%H%M%S) :: Running Test Step CM Count One Run" | tee -a "${run_log_file}"
 KB_START_TIME=$(date +%s)
 echo "$(date -u +%Y%m%d-%H%M%S) :: Start KB Time: ${KB_START_TIME}" | tee -a "${run_log_file}"
 time kube-burner-ocp --ignore-health-check --local-indexing --qps ${QPS} --burst ${BURST} --timeout ${timeout} --enable-file-logging=False init -c hcp-workload/job-cm-ramp.yml 2>&1 | tee ${kb_log_file}

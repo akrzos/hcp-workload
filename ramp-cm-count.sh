@@ -59,7 +59,11 @@ cm_counts+=("10000" "20000" "30000" "40000" "50000" "60000" "70000" "80000" "900
 # cm_counts+=("10000" "20000" "30000" "40000" "50000")
 
 test_dir="results/${ts}-cm-count"
+data_pre_run_dir="${test_dir}/pre-run-data"
 run_log_file="${test_dir}/run.log"
+mkdir -p "${test_dir}" "${data_pre_run_dir}"
+./collect-pre-run-data.sh ${data_pre_run_dir} | tee -a ${run_log_file}
+
 for i in "${!cm_counts[@]}"; do
   export CONFIGMAPS=${cm_counts[$i]}
   export METRICS_DIRECTORY="${test_dir}/${i}-${CONFIGMAPS}"
@@ -83,7 +87,7 @@ for i in "${!cm_counts[@]}"; do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Performing Cleanup" | tee -a "${run_log_file}"
   export CLEANUP_CRDS=false
   KB_START_CLEAN_TIME=$(date +%s)
-  time kube-burner-ocp --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
+  time kube-burner-ocp --ignore-health-check --enable-file-logging=False init -c hcp-workload/job-cleanup.yml 2>&1 | tee ${kb_clean_log_file}
   kb_rc=$?
   echo "$(date -u +%Y%m%d-%H%M%S) :: kube-burner cleanup, RC: ${kb_rc}" | tee -a "${run_log_file}"
   KB_END_CLEAN_TIME=$(date +%s)
