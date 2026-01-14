@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ramp count of ConfigMaps on a cluster and determine memory requirements per step
+# Step count of ConfigMaps and query memory usage each step
 # set -e
 set -o pipefail
 
@@ -23,7 +23,7 @@ export QPS=500
 export BURST=100
 
 # Objects Config
-export CONFIGMAPS=10
+export CONFIGMAPS=10000
 export CM_KEY_COUNT=2
 export CM_VALUE_SIZE=1024
 export SECRETS=0
@@ -31,8 +31,13 @@ export SECRET_KEY_COUNT=0
 export SECRET_VALUE_SIZE=1024
 
 test_dir="results/${ts}-cm-count"
+data_pre_run_dir="${test_dir}/pre-run-data"
 run_log_file="${test_dir}/run.log"
-
+echo "$(date -u +%Y%m%d-%H%M%S) :: Collecting Pre-Run Data" | tee -a "${run_log_file}"
+KB_END_TIME=$(date +%s)
+KB_START_TIME=$((KB_END_TIME - 600))
+./scripts/metrics.sh ${KB_START_TIME} ${KB_END_TIME} | tee -a ${run_log_file}
+./collect-pre-run-data.sh ${data_pre_run_dir}
 for i in {1..10}; do
   export CM_PREFIX=server-${i}
   export METRICS_DIRECTORY="${test_dir}/cm-step-${i}"
@@ -50,7 +55,6 @@ for i in {1..10}; do
   echo "$(date -u +%Y%m%d-%H%M%S) :: Test Time (Seconds) : ${KB_RUNTIME}" | tee -a "${run_log_file}"
   echo "$(date -u +%Y%m%d-%H%M%S) :: End KB Time: ${KB_END_TIME}" | tee -a "${run_log_file}"
   ./collect-post-run-data.sh ${data_post_run_dir} ${KB_START_TIME} ${KB_END_TIME} 2>&1 | tee -a ${run_log_file}
-  # ./scripts/metrics.sh ${KB_START_TIME} ${KB_END_TIME} | tee -a ${run_log_file}
 done
 
 
